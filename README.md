@@ -1,3 +1,3 @@
-# ncu2015-Twopits
+# ncu2015-2pits
 Software Engineer 
 GGininder
