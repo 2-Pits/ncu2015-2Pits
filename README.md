@@ -1,2 +1,3 @@
-# NCU2015 - 2pits
+# 2-Pits
+## Balls
 This is a project about balls.
