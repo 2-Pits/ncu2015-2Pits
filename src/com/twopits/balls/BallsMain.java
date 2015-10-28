@@ -197,14 +197,14 @@ public class BallsMain extends JPanel {
 		g2d.setFont(new Font(Font.SANS_SERIF, Font.PLAIN, (int) (12 * zoom)));
 
 		// Map
-		int screenLocationX = (int) (mPlayerX - this.getWidth() / zoom / 2.0);
-		int screenLocationY = (int) (mPlayerY - this.getHeight() / zoom / 2.0);
-		int visibleBlockX = Math.floorDiv(screenLocationX, BLOCK_SIZE);
-		int visibleBlockY = Math.floorDiv(screenLocationY, BLOCK_SIZE);
+		int screenPositionX = (int) (mPlayerX - this.getWidth() / zoom / 2.0);
+		int screenPositionY = (int) (mPlayerY - this.getHeight() / zoom / 2.0);
+		int screenOffsetX = Math.floorMod(screenPositionX, BLOCK_SIZE);
+		int screenOffsetY = Math.floorMod(screenPositionY, BLOCK_SIZE);
+		int visibleBlockX = Math.floorDiv(screenPositionX, BLOCK_SIZE);
+		int visibleBlockY = Math.floorDiv(screenPositionY, BLOCK_SIZE);
 		int visibleBlockW = (int) (this.getWidth() / zoom) / BLOCK_SIZE + 2;
 		int visibleBlockH = (int) (this.getHeight() / zoom) / BLOCK_SIZE + 2;
-		int offsetX = Math.floorMod(screenLocationX, BLOCK_SIZE);
-		int offsetY = Math.floorMod(screenLocationY, BLOCK_SIZE);
 
 		for (int row = 0; row < visibleBlockW; row++) {
 			for (int col = 0; col < visibleBlockH; col++) {
@@ -212,8 +212,8 @@ public class BallsMain extends JPanel {
 				int drawingBlockY = Math.floorMod(col + visibleBlockY, MAP_HEIGHT);
 				BasicBlock block = mBlocks[drawingBlockX][drawingBlockY];
 
-				int drawPositionX = (int) ((row * BLOCK_SIZE - offsetX) * zoom);
-				int drawPositionY = (int) ((col * BLOCK_SIZE - offsetY) * zoom);
+				int drawPositionX = (int) ((row * BLOCK_SIZE - screenOffsetX) * zoom);
+				int drawPositionY = (int) ((col * BLOCK_SIZE - screenOffsetY) * zoom);
 				int drawBlockSize = (int) Math.ceil(BLOCK_SIZE * zoom);
 
 				g2d.setColor(new Color(BLOCK_COLORS[block.ordinal()]));
@@ -237,6 +237,7 @@ public class BallsMain extends JPanel {
 				2 * fakePlayerRadius);
 
 		boolean DEBUG = true;
+		boolean DEBUG_PLAYER = true;
 		// noinspection ConstantConditions
 		if (DEBUG) {
 			// Debug messages
@@ -248,17 +249,31 @@ public class BallsMain extends JPanel {
 			g2d.drawString(String.format("FPS: %.0f", 1000 / (mSmoothedDt + mSleepDuration)),
 					drawTextPositionX, drawTextPositionY);
 
-			drawTextPositionY -= lineHeight;
-			g2d.drawString(String.format("Screen offset: (%d,%d)", offsetX, offsetY),
-					drawTextPositionX, drawTextPositionY);
+			// noinspection ConstantConditions
+			if (DEBUG_PLAYER) {
+				drawTextPositionY -= lineHeight;
+				g2d.drawString(String.format("Player offset: (%d,%d)", (int) mPlayerX % BLOCK_SIZE,
+								(int) mPlayerY % BLOCK_SIZE), drawTextPositionX, drawTextPositionY);
 
-			drawTextPositionY -= lineHeight;
-			g2d.drawString(String.format("Screen block: (%d,%d)", visibleBlockX, visibleBlockY),
-					drawTextPositionX, drawTextPositionY);
+				drawTextPositionY -= lineHeight;
+				g2d.drawString(String.format("Player block: (%d,%d)",
+								(int) mPlayerX / BLOCK_SIZE % MAP_WIDTH,
+								(int) mPlayerY / BLOCK_SIZE % MAP_HEIGHT), drawTextPositionX,
+						drawTextPositionY);
+			} else {
+				drawTextPositionY -= lineHeight;
+				g2d.drawString(
+						String.format("Screen offset: (%d,%d)", screenOffsetX, screenOffsetY),
+						drawTextPositionX, drawTextPositionY);
+
+				drawTextPositionY -= lineHeight;
+				g2d.drawString(String.format("Screen block: (%d,%d)", visibleBlockX, visibleBlockY),
+						drawTextPositionX, drawTextPositionY);
+			}
 
 			drawTextPositionY -= lineHeight;
 			g2d.drawString(
-					String.format("Player Position: (%d,%d)", (int) mPlayerX, (int) mPlayerY),
+					String.format("Player position: (%d,%d)", (int) mPlayerX, (int) mPlayerY),
 					drawTextPositionX, drawTextPositionY);
 		}
 	}
