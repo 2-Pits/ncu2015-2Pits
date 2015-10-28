@@ -24,7 +24,12 @@ import javax.swing.WindowConstants;
  */
 public class BallsMain extends JPanel {
 
+	// App configurations
 	private static final String APP_NAME = "Balls";
+	private static final int PLAYER_SPEED = 500;
+	private static final float FPS_CAP = 60f;
+	private static final float MAX_VISIBLE_BLOCKS_IN_HEIGHT = 3.0f;
+	private static final float MAX_VISIBLE_BLOCKS_IN_WIDTH = 5.0f;
 
 	private static BallsKeyManager mKeyManager;
 
@@ -46,7 +51,7 @@ public class BallsMain extends JPanel {
 			long currentTime = System.currentTimeMillis();
 			long dt = currentTime - lastFrameTime;
 			lastFrameTime = currentTime;
-			if (dt != 0) {
+			if (dt > 0) {
 				game.update(dt);
 			}
 		}
@@ -81,15 +86,12 @@ public class BallsMain extends JPanel {
 		}
 	}
 
-	private static final int PLAYER_SPEED = 500;
 	private double mPlayerX = 0, mPlayerY = 0;
 
 	private static final int[] BLOCK_COLORS =
 			{0xff43a047, 0xff607d8b, 0xff795548, 0xff006aa6, 0xffff5722};
 	private static final int MAP_WIDTH = 50, MAP_HEIGHT = 20;
 	private static final int BLOCK_SIZE = 100;
-	private static final float MAX_VISIBLE_BLOCKS_IN_HEIGHT = 3.0f;
-	private static final float MAX_VISIBLE_BLOCKS_IN_WIDTH = 5.0f;
 
 	private enum BasicBlock {
 		GRASS, ROCK, MUD, WATER, FIRE
@@ -121,7 +123,29 @@ public class BallsMain extends JPanel {
 		}
 	}
 
+	// For the update cycle
+	private float mSmoothedDt = 1000 / FPS_CAP;
+	private long mSleepDuration;
+
 	private void update(long dt) {
+		updatePlayerPosition(dt);
+		repaint();
+
+		mSmoothedDt = (mSmoothedDt * 9f + dt - mSleepDuration) / 10f;
+		mSleepDuration = (long) (1000 / FPS_CAP - mSmoothedDt);
+		if (mSleepDuration > 0l) {
+			// Cap the screen rate
+			try {
+				Thread.sleep(mSleepDuration);
+			} catch (InterruptedException e) {
+				e.printStackTrace();
+			}
+		} else {
+			mSleepDuration = 0;
+		}
+	}
+
+	private void updatePlayerPosition(long dt) {
 		double playerWayX = 0, playerWayY = 0;
 
 		if (mKeyManager.isKeyPressed(KeyEvent.VK_LEFT)) {
@@ -153,7 +177,6 @@ public class BallsMain extends JPanel {
 			if (mPlayerY < 0 || mPlayerY > MAP_HEIGHT * BLOCK_SIZE) {
 				mPlayerY = Utils.floorMod(mPlayerY, MAP_HEIGHT * BLOCK_SIZE);
 			}
-			repaint();
 		}
 	}
 
@@ -220,20 +243,22 @@ public class BallsMain extends JPanel {
 			int drawTextPositionX = (int) (10 * zoom);
 			int drawTextPositionY = this.getHeight() - (int) (10 * zoom);
 			int lineHeight = (int) (20 * zoom);
-			g2d.setColor(Color.WHITE);
-			g2d.drawString("Time stamp: " + System.currentTimeMillis(), drawTextPositionX,
-					drawTextPositionY);
 
-			drawTextPositionY -= lineHeight;
-			g2d.drawString(String.format("Position: (%d,%d)", (int) mPlayerX, (int) mPlayerY),
+			g2d.setColor(Color.WHITE);
+			g2d.drawString(String.format("FPS: %.0f", 1000 / (mSmoothedDt + mSleepDuration)),
 					drawTextPositionX, drawTextPositionY);
 
 			drawTextPositionY -= lineHeight;
-			g2d.drawString(String.format("Offset: (%d,%d)", offsetX, offsetY), drawTextPositionX,
-					drawTextPositionY);
+			g2d.drawString(String.format("Screen offset: (%d,%d)", offsetX, offsetY),
+					drawTextPositionX, drawTextPositionY);
 
 			drawTextPositionY -= lineHeight;
 			g2d.drawString(String.format("Screen block: (%d,%d)", visibleBlockX, visibleBlockY),
+					drawTextPositionX, drawTextPositionY);
+
+			drawTextPositionY -= lineHeight;
+			g2d.drawString(
+					String.format("Player Position: (%d,%d)", (int) mPlayerX, (int) mPlayerY),
 					drawTextPositionX, drawTextPositionY);
 		}
 	}
