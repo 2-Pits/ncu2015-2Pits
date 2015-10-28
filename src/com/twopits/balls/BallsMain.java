@@ -24,6 +24,7 @@ import javax.swing.WindowConstants;
  */
 public class BallsMain extends JPanel {
 
+	private static final boolean DEBUG = true;
 	private static final String APP_NAME = "Balls";
 
 	private static BallsKeyManager mKeyManager;
@@ -157,17 +158,21 @@ public class BallsMain extends JPanel {
 		}
 	}
 
-	@SuppressWarnings("SuspiciousNameCombination")
 	@Override
 	public void paint(Graphics g) {
 		super.paint(g);
 
+		Graphics2D g2d = (Graphics2D) g;
 		float zoom = getZoomFactor();
 
-		Graphics2D g2d = (Graphics2D) g;
+		drawMap(g2d, zoom);
+	}
+
+	@SuppressWarnings("SuspiciousNameCombination")
+	private void drawMap(Graphics2D g2d, float zoom) {
 		g2d.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
 		g2d.setStroke(new BasicStroke(zoom));
-		g.setFont(new Font(Font.SANS_SERIF, Font.PLAIN, (int) (12 * zoom)));
+		g2d.setFont(new Font(Font.SANS_SERIF, Font.PLAIN, (int) (12 * zoom)));
 
 		// Map
 		int screenLocationX = (int) (mPlayerX - this.getWidth() / zoom / 2.0);
@@ -209,16 +214,26 @@ public class BallsMain extends JPanel {
 				this.getHeight() / 2 - fakePlayerRadius, 2 * fakePlayerRadius,
 				2 * fakePlayerRadius);
 
-		// Debug messages
-		int screenBottom = this.getHeight() - 10;
-		int lineHeight = (int) (20 * zoom);
-		g2d.setColor(Color.WHITE);
-		g2d.drawString("Time stamp: " + System.currentTimeMillis(), 10, screenBottom);
-		g2d.drawString(String.format("Position: (%d,%d)", (int) mPlayerX, (int) mPlayerY), 10,
-				screenBottom - lineHeight);
-		g2d.drawString(String.format("Offset: (%d,%d)", offsetX, offsetY), 10,
-				screenBottom - lineHeight * 2);
-		g2d.drawString(String.format("Screen block: (%d,%d)", visibleBlockX, visibleBlockY), 10,
-				screenBottom - lineHeight * 3);
+		if (DEBUG) {
+			// Debug messages
+			int drawTextPositionX = (int) (10 * zoom);
+			int drawTextPositionY = this.getHeight() - (int) (10 * zoom);
+			int lineHeight = (int) (20 * zoom);
+			g2d.setColor(Color.WHITE);
+			g2d.drawString("Time stamp: " + System.currentTimeMillis(), drawTextPositionX,
+					drawTextPositionY);
+
+			drawTextPositionY -= lineHeight;
+			g2d.drawString(String.format("Position: (%d,%d)", (int) mPlayerX, (int) mPlayerY),
+					drawTextPositionX, drawTextPositionY);
+
+			drawTextPositionY -= lineHeight;
+			g2d.drawString(String.format("Offset: (%d,%d)", offsetX, offsetY), drawTextPositionX,
+					drawTextPositionY);
+
+			drawTextPositionY -= lineHeight;
+			g2d.drawString(String.format("Screen block: (%d,%d)", visibleBlockX, visibleBlockY),
+					drawTextPositionX, drawTextPositionY);
+		}
 	}
 }
