@@ -2,8 +2,10 @@ package com.twopits.balls;
 
 import com.twopits.balls.libs.Utils;
 
+import java.awt.BasicStroke;
 import java.awt.Color;
 import java.awt.Dimension;
+import java.awt.Font;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.RenderingHints;
@@ -22,10 +24,12 @@ import javax.swing.WindowConstants;
  */
 public class BallsMain extends JPanel {
 
+	private static final String APP_NAME = "Balls";
+	
 	private static BallsKeyManager mKeyManager;
 
 	public static void main(String[] args) {
-		JFrame frame = new JFrame();
+		JFrame frame = new JFrame(APP_NAME);
 		frame.getContentPane().setPreferredSize(new Dimension(500, 300));
 		frame.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
 		frame.pack();
@@ -84,6 +88,7 @@ public class BallsMain extends JPanel {
 			{0xff43a047, 0xff607d8b, 0xff795548, 0xff006aa6, 0xffff5722};
 	private static final int MAP_WIDTH = 50, MAP_HEIGHT = 20;
 	private static final int BLOCK_SIZE = 100;
+	private static final float VISIBLE_BLOCKS = 3.0f;
 
 	private enum BasicBlock {
 		GRASS, ROCK, MUD, WATER, FIRE
@@ -104,6 +109,10 @@ public class BallsMain extends JPanel {
 	}
 
 	public BallsMain() {
+	}
+
+	private float getZoomFactor() {
+		return getHeight() / (VISIBLE_BLOCKS * BLOCK_SIZE);
 	}
 
 	private void update(long dt) {
@@ -147,46 +156,62 @@ public class BallsMain extends JPanel {
 	public void paint(Graphics g) {
 		super.paint(g);
 
+		float zoom = getZoomFactor();
+
 		Graphics2D g2d = (Graphics2D) g;
 		g2d.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+		g2d.setStroke(new BasicStroke(zoom));
+		g.setFont(new Font(Font.SANS_SERIF, Font.PLAIN, (int) (12 * zoom)));
 
 		// Map
-		int screenLocationX = (int) mPlayerX - this.getWidth() / 2;
-		int screenLocationY = (int) mPlayerY - this.getHeight() / 2;
+		int screenLocationX = (int) (mPlayerX - this.getWidth() / zoom / 2.0);
+		int screenLocationY = (int) (mPlayerY - this.getHeight() / zoom / 2.0);
 		int visibleBlockX = Math.floorDiv(screenLocationX, BLOCK_SIZE);
 		int visibleBlockY = Math.floorDiv(screenLocationY, BLOCK_SIZE);
-		int visibleBlockW = this.getWidth() / BLOCK_SIZE + 2;
-		int visibleBlockH = this.getHeight() / BLOCK_SIZE + 2;
-		int paintOffsetX = Math.floorMod(screenLocationX, BLOCK_SIZE);
-		int paintOffsetY = Math.floorMod(screenLocationY, BLOCK_SIZE);
+		int visibleBlockW = (int) (this.getWidth() / zoom) / BLOCK_SIZE + 2;
+		int visibleBlockH = (int) (this.getHeight() / zoom) / BLOCK_SIZE + 2;
+		int offsetX = Math.floorMod(screenLocationX, BLOCK_SIZE);
+		int offsetY = Math.floorMod(screenLocationY, BLOCK_SIZE);
 
 		for (int row = 0; row < visibleBlockW; row++) {
 			for (int col = 0; col < visibleBlockH; col++) {
 				int drawingBlockX = Math.floorMod(row + visibleBlockX, MAP_WIDTH);
 				int drawingBlockY = Math.floorMod(col + visibleBlockY, MAP_HEIGHT);
 				BasicBlock block = mBlocks[drawingBlockX][drawingBlockY];
+
+				int drawPositionX = (int) ((row * BLOCK_SIZE - offsetX) * zoom);
+				int drawPositionY = (int) ((col * BLOCK_SIZE - offsetY) * zoom);
+				int drawBlockSize = (int) Math.ceil(BLOCK_SIZE * zoom);
+
 				g2d.setColor(new Color(BLOCK_COLORS[block.ordinal()]));
-				g2d.fillRect(row * BLOCK_SIZE - paintOffsetX, col * BLOCK_SIZE - paintOffsetY,
-						BLOCK_SIZE, BLOCK_SIZE);
+				g2d.fillRect(drawPositionX, drawPositionY, drawBlockSize, drawBlockSize);
 				g2d.setColor(Color.BLACK);
-				g2d.drawRect(row * BLOCK_SIZE - paintOffsetX, col * BLOCK_SIZE - paintOffsetY,
-						BLOCK_SIZE, BLOCK_SIZE);
+				g2d.drawRect(drawPositionX, drawPositionY, drawBlockSize, drawBlockSize);
 				g2d.drawString(String.format("(%d,%d)", drawingBlockX, drawingBlockY),
-						row * BLOCK_SIZE - paintOffsetX + 10, col * BLOCK_SIZE - paintOffsetY + 20);
+						drawPositionX + (10 * zoom), drawPositionY + (20 * zoom));
 			}
 		}
 
-		// Debug
+		// TODO Draw players
+		int fakePlayerRadius = (int) (4 * zoom);
+		g2d.setColor(Color.LIGHT_GRAY);
+		g2d.fillOval(this.getWidth() / 2 - fakePlayerRadius,
+				this.getHeight() / 2 - fakePlayerRadius, 2 * fakePlayerRadius,
+				2 * fakePlayerRadius);
 		g2d.setColor(Color.BLACK);
-		g2d.fillOval(this.getWidth() / 2 - 4, this.getHeight() / 2 - 4, 8, 8);
+		g2d.drawOval(this.getWidth() / 2 - fakePlayerRadius,
+				this.getHeight() / 2 - fakePlayerRadius, 2 * fakePlayerRadius,
+				2 * fakePlayerRadius);
 
+		// Debug messages
 		int screenBottom = this.getHeight() - 10;
+		int lineHeight = (int) (20 * zoom);
 		g2d.drawString("Time stamp: " + System.currentTimeMillis(), 10, screenBottom);
 		g2d.drawString(String.format("Position: (%d,%d)", (int) mPlayerX, (int) mPlayerY), 10,
-				screenBottom - 20);
-		g2d.drawString(String.format("Offset: (%d,%d)", paintOffsetX, paintOffsetY), 10,
-				screenBottom - 40);
+				screenBottom - lineHeight);
+		g2d.drawString(String.format("Offset: (%d,%d)", offsetX, offsetY), 10,
+				screenBottom - lineHeight * 2);
 		g2d.drawString(String.format("Screen block: (%d,%d)", visibleBlockX, visibleBlockY), 10,
-				screenBottom - 60);
+				screenBottom - lineHeight * 3);
 	}
 }
