@@ -36,11 +36,14 @@ public class BallsMain extends JPanel {
 	private static Font mGameFont;
 
 	public static void main(String[] args) {
+		initValues();
+
 		JFrame frame = new JFrame(APP_NAME);
 		frame.getContentPane().setPreferredSize(new Dimension(500, 300));
 		frame.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
 		frame.pack();
 		Utils.setWindowsToCenter(frame);
+		Utils.enableOsxFullscreen(frame, APP_NAME);
 
 		BallsMain game = new BallsMain();
 		frame.add(game);
@@ -48,14 +51,8 @@ public class BallsMain extends JPanel {
 		mKeyManager = new BallsKeyManager();
 		frame.addKeyListener(mKeyManager);
 
-		try {
-			mGameFont = Font.createFont(Font.TRUETYPE_FONT, new File("supercell_magic.ttf"));
-		} catch (Exception e) {
-			e.printStackTrace();
-			mGameFont = new Font(Font.SANS_SERIF, Font.PLAIN, 12);
-		}
-
 		long lastFrameTime = System.currentTimeMillis();
+		// noinspection InfiniteLoopStatement
 		while (true) {
 			long currentTime = System.currentTimeMillis();
 			long dt = currentTime - lastFrameTime;
@@ -63,6 +60,15 @@ public class BallsMain extends JPanel {
 			if (dt > 0) {
 				game.update(dt);
 			}
+		}
+	}
+
+	private static void initValues() {
+		try {
+			mGameFont = Font.createFont(Font.TRUETYPE_FONT, new File("supercell_magic.ttf"));
+		} catch (Exception e) {
+			e.printStackTrace();
+			mGameFont = new Font(Font.SANS_SERIF, Font.PLAIN, 12);
 		}
 	}
 
