@@ -22,14 +22,12 @@ import javax.swing.WindowConstants;
  */
 public class BallsMain extends JPanel {
 
-	private static Dimension mScreenDimen = new Dimension(500, 300);
 	private static BallsKeyManager mKeyManager;
 
 	public static void main(String[] args) {
 		JFrame frame = new JFrame();
-		frame.getContentPane().setPreferredSize(mScreenDimen);
+		frame.getContentPane().setPreferredSize(new Dimension(500, 300));
 		frame.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
-		frame.setResizable(false);
 		frame.pack();
 		Utils.setWindowsToCenter(frame);
 
@@ -153,12 +151,12 @@ public class BallsMain extends JPanel {
 		g2d.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
 
 		// Map
-		int screenLocationX = (int) mPlayerX - mScreenDimen.width / 2;
-		int screenLocationY = (int) mPlayerY - mScreenDimen.height / 2;
+		int screenLocationX = (int) mPlayerX - this.getWidth() / 2;
+		int screenLocationY = (int) mPlayerY - this.getHeight() / 2;
 		int visibleBlockX = Math.floorDiv(screenLocationX, BLOCK_SIZE);
 		int visibleBlockY = Math.floorDiv(screenLocationY, BLOCK_SIZE);
-		int visibleBlockW = mScreenDimen.width / BLOCK_SIZE + 1;
-		int visibleBlockH = mScreenDimen.height / BLOCK_SIZE + 1;
+		int visibleBlockW = this.getWidth() / BLOCK_SIZE + 2;
+		int visibleBlockH = this.getHeight() / BLOCK_SIZE + 2;
 		int paintOffsetX = Math.floorMod(screenLocationX, BLOCK_SIZE);
 		int paintOffsetY = Math.floorMod(screenLocationY, BLOCK_SIZE);
 
@@ -180,9 +178,9 @@ public class BallsMain extends JPanel {
 
 		// Debug
 		g2d.setColor(Color.BLACK);
-		g2d.fillOval(mScreenDimen.width / 2 - 4, mScreenDimen.height / 2 - 4, 8, 8);
+		g2d.fillOval(this.getWidth() / 2 - 4, this.getHeight() / 2 - 4, 8, 8);
 
-		int screenBottom = mScreenDimen.height - 10;
+		int screenBottom = this.getHeight() - 10;
 		g2d.drawString("Time stamp: " + System.currentTimeMillis(), 10, screenBottom);
 		g2d.drawString(String.format("Position: (%d,%d)", (int) mPlayerX, (int) mPlayerY), 10,
 				screenBottom - 20);
