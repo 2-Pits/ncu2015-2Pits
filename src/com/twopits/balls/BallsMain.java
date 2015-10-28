@@ -20,7 +20,7 @@ import javax.swing.JPanel;
 import javax.swing.WindowConstants;
 
 /**
- * Main class of Balls
+ * Main class of game "Balls"
  * Created by hiking on 2015/10/26.
  */
 public class BallsMain extends JPanel {
@@ -49,7 +49,7 @@ public class BallsMain extends JPanel {
 		frame.addKeyListener(mKeyManager);
 
 		try {
-			mGameFont = Font.createFont(Font.TRUETYPE_FONT, new File("Minecraftia.ttf"));
+			mGameFont = Font.createFont(Font.TRUETYPE_FONT, new File("supercell_magic.ttf"));
 		} catch (Exception e) {
 			e.printStackTrace();
 			mGameFont = new Font(Font.SANS_SERIF, Font.PLAIN, 12);
