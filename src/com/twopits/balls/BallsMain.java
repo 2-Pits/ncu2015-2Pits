@@ -253,7 +253,7 @@ public class BallsMain extends JPanel {
 			if (DEBUG_PLAYER) {
 				drawTextPositionY -= lineHeight;
 				g2d.drawString(String.format("Player offset: (%d,%d)", (int) mPlayerX % BLOCK_SIZE,
-								(int) mPlayerY % BLOCK_SIZE), drawTextPositionX, drawTextPositionY);
+						(int) mPlayerY % BLOCK_SIZE), drawTextPositionX, drawTextPositionY);
 
 				drawTextPositionY -= lineHeight;
 				g2d.drawString(String.format("Player block: (%d,%d)",
