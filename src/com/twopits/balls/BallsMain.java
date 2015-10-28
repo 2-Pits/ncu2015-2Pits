@@ -24,7 +24,6 @@ import javax.swing.WindowConstants;
  */
 public class BallsMain extends JPanel {
 
-	private static final boolean DEBUG = true;
 	private static final String APP_NAME = "Balls";
 
 	private static BallsKeyManager mKeyManager;
@@ -214,6 +213,8 @@ public class BallsMain extends JPanel {
 				this.getHeight() / 2 - fakePlayerRadius, 2 * fakePlayerRadius,
 				2 * fakePlayerRadius);
 
+		boolean DEBUG = true;
+		// noinspection ConstantConditions
 		if (DEBUG) {
 			// Debug messages
 			int drawTextPositionX = (int) (10 * zoom);
