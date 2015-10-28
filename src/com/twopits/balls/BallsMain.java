@@ -2,6 +2,7 @@ package com.twopits.balls;
 
 import com.twopits.balls.libs.Utils;
 
+import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
@@ -81,6 +82,29 @@ public class BallsMain extends JPanel {
 	private static final int PLAYER_SPEED = 500;
 	private double mPlayerX = 0, mPlayerY = 0;
 
+	private static final int[] BLOCK_COLORS =
+			{0xff43a047, 0xff607d8b, 0xff795548, 0xff006aa6, 0xffff5722};
+	private static final int MAP_WIDTH = 50, MAP_HEIGHT = 20;
+	private static final int BLOCK_SIZE = 100;
+
+	private enum BasicBlock {
+		GRASS, ROCK, MUD, WATER, FIRE
+	}
+
+	private static BasicBlock[][] mBlocks = initMap();
+
+	private static BasicBlock[][] initMap() {
+		BasicBlock[][] scene = new BasicBlock[MAP_WIDTH][];
+		for (int row = 0; row < MAP_WIDTH; row++) {
+			scene[row] = new BasicBlock[MAP_HEIGHT];
+			for (int col = 0; col < MAP_HEIGHT; col++) {
+				scene[row][col] =
+						BasicBlock.values()[((int) (Math.random() * BasicBlock.values().length))];
+			}
+		}
+		return scene;
+	}
+
 	public BallsMain() {
 	}
 
@@ -110,24 +134,17 @@ public class BallsMain extends JPanel {
 		mPlayerY += playerWayY * PLAYER_SPEED * dt / 1000.0;
 
 		if (playerWayX != 0 || playerWayY != 0) {
-			// Check out-of-bound
-			if (mPlayerX + 30 > mScreenDimen.width) {
-				mPlayerX = mScreenDimen.width - 30;
+			if (mPlayerX < 0 || mPlayerX > MAP_WIDTH * BLOCK_SIZE) {
+				mPlayerX = Utils.floorMod(mPlayerX, MAP_WIDTH * BLOCK_SIZE);
 			}
-			if (mPlayerX < 0) {
-				mPlayerX = 0;
+			if (mPlayerY < 0 || mPlayerY > MAP_HEIGHT * BLOCK_SIZE) {
+				mPlayerY = Utils.floorMod(mPlayerY, MAP_HEIGHT * BLOCK_SIZE);
 			}
-			if (mPlayerY + 30 > mScreenDimen.height) {
-				mPlayerY = mScreenDimen.height - 30;
-			}
-			if (mPlayerY < 0) {
-				mPlayerY = 0;
-			}
-
 			repaint();
 		}
 	}
 
+	@SuppressWarnings("SuspiciousNameCombination")
 	@Override
 	public void paint(Graphics g) {
 		super.paint(g);
@@ -135,9 +152,43 @@ public class BallsMain extends JPanel {
 		Graphics2D g2d = (Graphics2D) g;
 		g2d.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
 
-		g2d.fillOval((int) mPlayerX, (int) mPlayerY, 30, 30);
-		g2d.drawString("Position: " + String.format("(%d,%d)", (int) mPlayerX, (int) mPlayerY), 10,
-				270);
-		g2d.drawString("Time stamp: " + System.currentTimeMillis(), 10, 290);
+		// Map
+		int screenLocationX = (int) mPlayerX - mScreenDimen.width / 2;
+		int screenLocationY = (int) mPlayerY - mScreenDimen.height / 2;
+		int visibleBlockX = Math.floorDiv(screenLocationX, BLOCK_SIZE);
+		int visibleBlockY = Math.floorDiv(screenLocationY, BLOCK_SIZE);
+		int visibleBlockW = mScreenDimen.width / BLOCK_SIZE + 1;
+		int visibleBlockH = mScreenDimen.height / BLOCK_SIZE + 1;
+		int paintOffsetX = Math.floorMod(screenLocationX, BLOCK_SIZE);
+		int paintOffsetY = Math.floorMod(screenLocationY, BLOCK_SIZE);
+
+		for (int row = 0; row < visibleBlockW; row++) {
+			for (int col = 0; col < visibleBlockH; col++) {
+				int drawingBlockX = Math.floorMod(row + visibleBlockX, MAP_WIDTH);
+				int drawingBlockY = Math.floorMod(col + visibleBlockY, MAP_HEIGHT);
+				BasicBlock block = mBlocks[drawingBlockX][drawingBlockY];
+				g2d.setColor(new Color(BLOCK_COLORS[block.ordinal()]));
+				g2d.fillRect(row * BLOCK_SIZE - paintOffsetX, col * BLOCK_SIZE - paintOffsetY,
+						BLOCK_SIZE, BLOCK_SIZE);
+				g2d.setColor(Color.BLACK);
+				g2d.drawRect(row * BLOCK_SIZE - paintOffsetX, col * BLOCK_SIZE - paintOffsetY,
+						BLOCK_SIZE, BLOCK_SIZE);
+				g2d.drawString(String.format("(%d,%d)", drawingBlockX, drawingBlockY),
+						row * BLOCK_SIZE - paintOffsetX + 10, col * BLOCK_SIZE - paintOffsetY + 20);
+			}
+		}
+
+		// Debug
+		g2d.setColor(Color.BLACK);
+		g2d.fillOval(mScreenDimen.width / 2 - 4, mScreenDimen.height / 2 - 4, 8, 8);
+
+		int screenBottom = mScreenDimen.height - 10;
+		g2d.drawString("Time stamp: " + System.currentTimeMillis(), 10, screenBottom);
+		g2d.drawString(String.format("Position: (%d,%d)", (int) mPlayerX, (int) mPlayerY), 10,
+				screenBottom - 20);
+		g2d.drawString(String.format("Offset: (%d,%d)", paintOffsetX, paintOffsetY), 10,
+				screenBottom - 40);
+		g2d.drawString(String.format("Screen block: (%d,%d)", visibleBlockX, visibleBlockY), 10,
+				screenBottom - 60);
 	}
 }

@@ -19,4 +19,12 @@ public class Utils {
 		int y = (dim.height - h) / 2;
 		frm.setLocation(x, y);
 	}
+
+	public static double floorMod(double a, int b) {
+		double r = a % b;
+		if (r < 0) {
+			r += b;
+		}
+		return r;
+	}
 }
