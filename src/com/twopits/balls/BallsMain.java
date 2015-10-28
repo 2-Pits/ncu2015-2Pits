@@ -11,6 +11,7 @@ import java.awt.Graphics2D;
 import java.awt.RenderingHints;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
+import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -32,6 +33,7 @@ public class BallsMain extends JPanel {
 	private static final float MAX_VISIBLE_BLOCKS_IN_WIDTH = 5.0f;
 
 	private static BallsKeyManager mKeyManager;
+	private static Font mGameFont;
 
 	public static void main(String[] args) {
 		JFrame frame = new JFrame(APP_NAME);
@@ -45,6 +47,13 @@ public class BallsMain extends JPanel {
 		frame.setVisible(true);
 		mKeyManager = new BallsKeyManager();
 		frame.addKeyListener(mKeyManager);
+
+		try {
+			mGameFont = Font.createFont(Font.TRUETYPE_FONT, new File("Minecraftia.ttf"));
+		} catch (Exception e) {
+			e.printStackTrace();
+			mGameFont = new Font(Font.SANS_SERIF, Font.PLAIN, 12);
+		}
 
 		long lastFrameTime = System.currentTimeMillis();
 		while (true) {
@@ -186,6 +195,7 @@ public class BallsMain extends JPanel {
 
 		Graphics2D g2d = (Graphics2D) g;
 		float zoom = getZoomFactor();
+		g2d.setFont(mGameFont.deriveFont(12 * zoom));
 
 		drawMap(g2d, zoom);
 	}
@@ -193,8 +203,6 @@ public class BallsMain extends JPanel {
 	@SuppressWarnings("SuspiciousNameCombination")
 	private void drawMap(Graphics2D g2d, float zoom) {
 		g2d.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
-		g2d.setStroke(new BasicStroke(zoom));
-		g2d.setFont(new Font(Font.SANS_SERIF, Font.PLAIN, (int) (12 * zoom)));
 
 		// Map
 		int screenPositionX = (int) (mPlayerX - this.getWidth() / zoom / 2.0);
@@ -206,6 +214,7 @@ public class BallsMain extends JPanel {
 		int visibleBlockW = (int) (this.getWidth() / zoom) / BLOCK_SIZE + 2;
 		int visibleBlockH = (int) (this.getHeight() / zoom) / BLOCK_SIZE + 2;
 
+		g2d.setStroke(new BasicStroke(2 * zoom));
 		for (int row = 0; row < visibleBlockW; row++) {
 			for (int col = 0; col < visibleBlockH; col++) {
 				int drawingBlockX = Math.floorMod(row + visibleBlockX, MAP_WIDTH);
