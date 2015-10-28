@@ -25,7 +25,7 @@ import javax.swing.WindowConstants;
 public class BallsMain extends JPanel {
 
 	private static final String APP_NAME = "Balls";
-	
+
 	private static BallsKeyManager mKeyManager;
 
 	public static void main(String[] args) {
@@ -88,7 +88,8 @@ public class BallsMain extends JPanel {
 			{0xff43a047, 0xff607d8b, 0xff795548, 0xff006aa6, 0xffff5722};
 	private static final int MAP_WIDTH = 50, MAP_HEIGHT = 20;
 	private static final int BLOCK_SIZE = 100;
-	private static final float VISIBLE_BLOCKS = 3.0f;
+	private static final float MAX_VISIBLE_BLOCKS_IN_HEIGHT = 3.0f;
+	private static final float MAX_VISIBLE_BLOCKS_IN_WIDTH = 5.0f;
 
 	private enum BasicBlock {
 		GRASS, ROCK, MUD, WATER, FIRE
@@ -112,7 +113,12 @@ public class BallsMain extends JPanel {
 	}
 
 	private float getZoomFactor() {
-		return getHeight() / (VISIBLE_BLOCKS * BLOCK_SIZE);
+		if (getWidth() / (float) getHeight() >
+				MAX_VISIBLE_BLOCKS_IN_WIDTH / MAX_VISIBLE_BLOCKS_IN_HEIGHT) {
+			return getWidth() / (MAX_VISIBLE_BLOCKS_IN_WIDTH * BLOCK_SIZE);
+		} else {
+			return getHeight() / (MAX_VISIBLE_BLOCKS_IN_HEIGHT * BLOCK_SIZE);
+		}
 	}
 
 	private void update(long dt) {
@@ -206,6 +212,7 @@ public class BallsMain extends JPanel {
 		// Debug messages
 		int screenBottom = this.getHeight() - 10;
 		int lineHeight = (int) (20 * zoom);
+		g2d.setColor(Color.WHITE);
 		g2d.drawString("Time stamp: " + System.currentTimeMillis(), 10, screenBottom);
 		g2d.drawString(String.format("Position: (%d,%d)", (int) mPlayerX, (int) mPlayerY), 10,
 				screenBottom - lineHeight);
