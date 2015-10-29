@@ -8,7 +8,9 @@ import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
+import java.awt.Image;
 import java.awt.RenderingHints;
+import java.awt.Toolkit;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 import java.io.File;
@@ -27,7 +29,7 @@ public class BallsMain extends JPanel {
 
 	// App configurations
 	private static final String APP_NAME = "Balls";
-	private static final int PLAYER_SPEED = 500;
+	private static final int PLAYER_SPEED = 300;
 	private static final float FPS_CAP = 60f;
 	private static final float MAX_VISIBLE_BLOCKS_IN_HEIGHT = 3.0f;
 	private static final float MAX_VISIBLE_BLOCKS_IN_WIDTH = 5.0f;
@@ -65,7 +67,7 @@ public class BallsMain extends JPanel {
 
 	private static void initValues() {
 		try {
-			mGameFont = Font.createFont(Font.TRUETYPE_FONT, new File("supercell_magic.ttf"));
+			mGameFont = Font.createFont(Font.TRUETYPE_FONT, new File("res/supercell_magic.ttf"));
 		} catch (Exception e) {
 			e.printStackTrace();
 			mGameFont = new Font(Font.SANS_SERIF, Font.PLAIN, 12);
@@ -101,20 +103,26 @@ public class BallsMain extends JPanel {
 		}
 	}
 
+	private static final int MAP_WIDTH = 50, MAP_HEIGHT = 20;
 	private double mPlayerX = 0, mPlayerY = 0;
 
-	private static final int[] BLOCK_COLORS =
-			{0xff43a047, 0xff607d8b, 0xff795548, 0xff006aa6, 0xffff5722};
-	private static final int MAP_WIDTH = 50, MAP_HEIGHT = 20;
 	private static final int BLOCK_SIZE = 100;
 
 	private enum BasicBlock {
-		GRASS, ROCK, MUD, WATER, FIRE
+		GRASS, ROCK, DIRT, WATER, LAVA;
+
 	}
 
-	private static BasicBlock[][] mBlocks = initMap();
+	private static Image[] mBlockImages;
 
-	private static BasicBlock[][] initMap() {
+	private static BasicBlock[][] mBlocks;
+
+	public BallsMain() {
+		mBlocks = initMap();
+		mBlockImages = initBlockResources();
+	}
+
+	private BasicBlock[][] initMap() {
 		BasicBlock[][] scene = new BasicBlock[MAP_WIDTH][];
 		for (int row = 0; row < MAP_WIDTH; row++) {
 			scene[row] = new BasicBlock[MAP_HEIGHT];
@@ -126,7 +134,14 @@ public class BallsMain extends JPanel {
 		return scene;
 	}
 
-	public BallsMain() {
+	private Image[] initBlockResources() {
+		Image[] images = new Image[BasicBlock.values().length];
+		images[BasicBlock.GRASS.ordinal()] = Toolkit.getDefaultToolkit().getImage("res/grass.png");
+		images[BasicBlock.ROCK.ordinal()] = Toolkit.getDefaultToolkit().getImage("res/rock.jpg");
+		images[BasicBlock.DIRT.ordinal()] = Toolkit.getDefaultToolkit().getImage("res/dirt.jpg");
+		images[BasicBlock.WATER.ordinal()] = Toolkit.getDefaultToolkit().getImage("res/water.jpg");
+		images[BasicBlock.LAVA.ordinal()] = Toolkit.getDefaultToolkit().getImage("res/lava.jpg");
+		return images;
 	}
 
 	private float getZoomFactor() {
@@ -231,8 +246,8 @@ public class BallsMain extends JPanel {
 				int drawPositionY = (int) ((col * BLOCK_SIZE - screenOffsetY) * zoom);
 				int drawBlockSize = (int) Math.ceil(BLOCK_SIZE * zoom);
 
-				g2d.setColor(new Color(BLOCK_COLORS[block.ordinal()]));
-				g2d.fillRect(drawPositionX, drawPositionY, drawBlockSize, drawBlockSize);
+				g2d.drawImage(mBlockImages[block.ordinal()], drawPositionX, drawPositionY,
+						drawBlockSize, drawBlockSize, null);
 				g2d.setColor(Color.BLACK);
 				g2d.drawRect(drawPositionX, drawPositionY, drawBlockSize, drawBlockSize);
 				g2d.drawString(String.format("(%d,%d)", drawingBlockX, drawingBlockY),
@@ -261,8 +276,8 @@ public class BallsMain extends JPanel {
 			int lineHeight = (int) (20 * zoom);
 
 			g2d.setColor(Color.WHITE);
-			g2d.drawString(String.format("FPS: %.0f", 1000 / (mSmoothedDt + mSleepDuration)),
-					drawTextPositionX, drawTextPositionY);
+			g2d.drawString(String.format("FPS: %.0f (%d)", 1000 / (mSmoothedDt + mSleepDuration),
+					mSleepDuration), drawTextPositionX, drawTextPositionY);
 
 			// noinspection ConstantConditions
 			if (DEBUG_PLAYER) {
