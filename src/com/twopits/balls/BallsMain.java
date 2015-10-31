@@ -104,7 +104,7 @@ public class BallsMain extends JPanel {
 	}
 
 	private static final int MAP_WIDTH = 50, MAP_HEIGHT = 20;
-	private double mPlayerX = 0, mPlayerY = 0;
+	private double mPlayerX = 2500, mPlayerY = 1000;
 
 	private static final int BLOCK_SIZE = 100;
 
@@ -137,10 +137,10 @@ public class BallsMain extends JPanel {
 	private Image[] initBlockResources() {
 		Image[] images = new Image[BasicBlock.values().length];
 		images[BasicBlock.GRASS.ordinal()] = Toolkit.getDefaultToolkit().getImage("res/grass.png");
-		images[BasicBlock.ROCK.ordinal()] = Toolkit.getDefaultToolkit().getImage("res/rock.jpg");
-		images[BasicBlock.DIRT.ordinal()] = Toolkit.getDefaultToolkit().getImage("res/dirt.jpg");
-		images[BasicBlock.WATER.ordinal()] = Toolkit.getDefaultToolkit().getImage("res/water.jpg");
-		images[BasicBlock.LAVA.ordinal()] = Toolkit.getDefaultToolkit().getImage("res/lava.jpg");
+		images[BasicBlock.ROCK.ordinal()] = Toolkit.getDefaultToolkit().getImage("res/rock.png");
+		images[BasicBlock.DIRT.ordinal()] = Toolkit.getDefaultToolkit().getImage("res/dirt.png");
+		images[BasicBlock.WATER.ordinal()] = Toolkit.getDefaultToolkit().getImage("res/water.png");
+		images[BasicBlock.LAVA.ordinal()] = Toolkit.getDefaultToolkit().getImage("res/lava.png");
 		return images;
 	}
 
@@ -216,7 +216,7 @@ public class BallsMain extends JPanel {
 
 		Graphics2D g2d = (Graphics2D) g;
 		float zoom = getZoomFactor();
-		g2d.setFont(mGameFont.deriveFont(12 * zoom));
+		g2d.setFont(mGameFont.deriveFont(10 * zoom));
 
 		drawMap(g2d, zoom);
 	}
