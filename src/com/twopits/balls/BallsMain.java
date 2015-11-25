@@ -201,17 +201,25 @@ public class BallsMain extends JPanel {
 	}
 
 	private void movePlayer(double dx, double dy) {
-		double playerOffsetX = Utils.floorMod(mPlayerX + dx, BLOCK_SIZE);
-		double playerOffsetY = Utils.floorMod(mPlayerY + dy, BLOCK_SIZE);
+		double playerOffsetXBefore = Utils.floorMod(mPlayerX, BLOCK_SIZE);
+		double playerOffsetYBefore = Utils.floorMod(mPlayerY, BLOCK_SIZE);
+		double playerOffsetXAfter = Utils.floorMod(mPlayerX + dx, BLOCK_SIZE);
+		double playerOffsetYAfter = Utils.floorMod(mPlayerY + dy, BLOCK_SIZE);
 		float playerRadius = PLAYER_SIZE / 2f;
 
-		boolean validXLeft = playerOffsetX - playerRadius - WALL_THICKNESS > 0;
-		boolean validXRight = playerOffsetX + playerRadius + WALL_THICKNESS < BLOCK_SIZE;
-		boolean validYTop = playerOffsetY - playerRadius - WALL_THICKNESS > 0;
-		boolean validYBottom = playerOffsetY + playerRadius + WALL_THICKNESS < BLOCK_SIZE;
+		boolean validLeftBefore = playerOffsetXBefore - playerRadius - WALL_THICKNESS > 0;
+		boolean validRightBefore = playerOffsetXBefore + playerRadius + WALL_THICKNESS < BLOCK_SIZE;
+		boolean validTopBefore = playerOffsetYBefore - playerRadius - WALL_THICKNESS > 0;
+		boolean validBottomBefore =
+				playerOffsetYBefore + playerRadius + WALL_THICKNESS < BLOCK_SIZE;
+		boolean validLeftAfter = playerOffsetXAfter - playerRadius - WALL_THICKNESS > 0;
+		boolean validRightAfter = playerOffsetXAfter + playerRadius + WALL_THICKNESS < BLOCK_SIZE;
+		boolean validTopAfter = playerOffsetYAfter - playerRadius - WALL_THICKNESS > 0;
+		boolean validBottomAfter = playerOffsetYAfter + playerRadius + WALL_THICKNESS < BLOCK_SIZE;
 
 		// Check if player isn't near a door
-		boolean isInsideRoom = validXLeft && validXRight && validYTop && validYBottom;
+		boolean isInsideRoom =
+				validLeftAfter && validRightAfter && validTopAfter && validBottomAfter;
 		if (isInsideRoom) {
 			mPlayerX += dx;
 			mPlayerY += dy;
@@ -220,18 +228,35 @@ public class BallsMain extends JPanel {
 
 		// Check door
 		double doorSideWallWidth = (BLOCK_SIZE - DOOR_WIDTH) / 2.0;
-		boolean insideXDoorRange = playerOffsetX - playerRadius > doorSideWallWidth &&
-				playerOffsetX + playerRadius < BLOCK_SIZE - doorSideWallWidth;
-		boolean insideYDoorRange = playerOffsetY - playerRadius > doorSideWallWidth &&
-				playerOffsetY + playerRadius < BLOCK_SIZE - doorSideWallWidth;
-		if ((!validXLeft || !validXRight) && insideYDoorRange) {
-			mPlayerX += dx;
-			mPlayerY += dy;
+		boolean insideXDoorRangeBefore = playerOffsetXBefore - playerRadius > doorSideWallWidth &&
+				playerOffsetXBefore + playerRadius < BLOCK_SIZE - doorSideWallWidth;
+		boolean insideYDoorRangeBefore = playerOffsetYBefore - playerRadius > doorSideWallWidth &&
+				playerOffsetYBefore + playerRadius < BLOCK_SIZE - doorSideWallWidth;
+		boolean insideXDoorRangeAfter = playerOffsetXAfter - playerRadius > doorSideWallWidth &&
+				playerOffsetXAfter + playerRadius < BLOCK_SIZE - doorSideWallWidth;
+		boolean insideYDoorRangeAfter = playerOffsetYAfter - playerRadius > doorSideWallWidth &&
+				playerOffsetYAfter + playerRadius < BLOCK_SIZE - doorSideWallWidth;
+
+		if ((!validLeftAfter || !validRightAfter) && !insideYDoorRangeBefore) {
+			dx = 0;
 		}
-		if ((!validYTop || !validYBottom) && insideXDoorRange) {
-			mPlayerX += dx;
-			mPlayerY += dy;
+		if ((!validLeftBefore || !validRightBefore) &&
+				(playerOffsetYAfter - playerRadius < doorSideWallWidth ||
+						playerOffsetYAfter + playerRadius > BLOCK_SIZE - doorSideWallWidth)) {
+			dy = 0;
 		}
+
+		if ((!validTopAfter || !validBottomAfter) && !insideXDoorRangeBefore) {
+			dy = 0;
+		}
+		if ((!validTopBefore || !validBottomBefore) &&
+				(playerOffsetXAfter - playerRadius < doorSideWallWidth ||
+						playerOffsetXAfter + playerRadius > BLOCK_SIZE - doorSideWallWidth)) {
+			dx = 0;
+		}
+
+		mPlayerX += dx;
+		mPlayerY += dy;
 	}
 
 	@Override
@@ -274,20 +299,21 @@ public class BallsMain extends JPanel {
 						drawBlockSize, drawBlockSize, null);
 				// Draw block info
 				g2d.setColor(new Color(0xff35160a));
-				g2d.drawString(String.format("(%d,%d)", mapBlockX, mapBlockY),
-						drawPositionX + (10 * zoom), drawPositionY + (20 * zoom));
+				g2d.drawString(String.format("(%d,%d)", Math.floorMod(mapBlockX, MAP_WIDTH),
+								Math.floorMod(mapBlockY, MAP_HEIGHT)), drawPositionX + (10 * zoom),
+						drawPositionY + (20 * zoom));
 			}
 		}
 
 		// TODO Draw players
-		int fakePlayerRadius = (int) (8 * zoom);
+		int fakePlayerRadius = (int) (PLAYER_SIZE / 2 * zoom);
 		g2d.setColor(Color.LIGHT_GRAY);
-		g2d.fillOval(this.getWidth() / 2 - fakePlayerRadius,
+		g2d.fillRect(this.getWidth() / 2 - fakePlayerRadius,
 				this.getHeight() / 2 - fakePlayerRadius, 2 * fakePlayerRadius,
 				2 * fakePlayerRadius);
 		g2d.setColor(Color.BLACK);
 		g2d.setStroke(new BasicStroke(2 * zoom));
-		g2d.drawOval(this.getWidth() / 2 - fakePlayerRadius,
+		g2d.drawRect(this.getWidth() / 2 - fakePlayerRadius,
 				this.getHeight() / 2 - fakePlayerRadius, 2 * fakePlayerRadius,
 				2 * fakePlayerRadius);
 
