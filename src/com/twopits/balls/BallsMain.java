@@ -34,6 +34,10 @@ public class BallsMain extends JPanel {
 	private static final float MAX_VISIBLE_BLOCKS_IN_HEIGHT = 3.0f;
 	private static final float MAX_VISIBLE_BLOCKS_IN_WIDTH = 5.0f;
 
+	private static final float WALL_THICKNESS = 5f;
+	private static final float PLAYER_SIZE = 12f;
+	private static final float DOOR_WIDTH = 33f;
+
 	private static BallsKeyManager mKeyManager;
 	private static Font mGameFont;
 
@@ -104,9 +108,10 @@ public class BallsMain extends JPanel {
 	}
 
 	private static final int MAP_WIDTH = 10, MAP_HEIGHT = 10;
-	private double mPlayerX = 0, mPlayerY = 0;
-
 	private static final int BLOCK_SIZE = 100;
+
+	// Initial player at the center of (0,0)
+	private double mPlayerX = BLOCK_SIZE / 2, mPlayerY = BLOCK_SIZE / 2;
 
 	private enum BasicBlock {
 		DARK, LIGHT
@@ -180,16 +185,52 @@ public class BallsMain extends JPanel {
 			playerWayY /= unitFactor;
 		}
 
-		mPlayerX += playerWayX * PLAYER_SPEED * dt / 1000.0;
-		mPlayerY += playerWayY * PLAYER_SPEED * dt / 1000.0;
+		double dx = playerWayX * PLAYER_SPEED * dt / 1000.0;
+		double dy = playerWayY * PLAYER_SPEED * dt / 1000.0;
+		movePlayer(dx, dy);
 
-		if (playerWayX != 0 || playerWayY != 0) {
+		// Move player
+		if (dx != 0 || dy != 0) {
 			if (mPlayerX < 0 || mPlayerX > MAP_WIDTH * BLOCK_SIZE) {
 				mPlayerX = Utils.floorMod(mPlayerX, MAP_WIDTH * BLOCK_SIZE);
 			}
 			if (mPlayerY < 0 || mPlayerY > MAP_HEIGHT * BLOCK_SIZE) {
 				mPlayerY = Utils.floorMod(mPlayerY, MAP_HEIGHT * BLOCK_SIZE);
 			}
+		}
+	}
+
+	private void movePlayer(double dx, double dy) {
+		double playerOffsetX = Utils.floorMod(mPlayerX + dx, BLOCK_SIZE);
+		double playerOffsetY = Utils.floorMod(mPlayerY + dy, BLOCK_SIZE);
+		float playerRadius = PLAYER_SIZE / 2f;
+
+		boolean validXLeft = playerOffsetX - playerRadius - WALL_THICKNESS > 0;
+		boolean validXRight = playerOffsetX + playerRadius + WALL_THICKNESS < BLOCK_SIZE;
+		boolean validYTop = playerOffsetY - playerRadius - WALL_THICKNESS > 0;
+		boolean validYBottom = playerOffsetY + playerRadius + WALL_THICKNESS < BLOCK_SIZE;
+
+		// Check if player isn't near a door
+		boolean isInsideRoom = validXLeft && validXRight && validYTop && validYBottom;
+		if (isInsideRoom) {
+			mPlayerX += dx;
+			mPlayerY += dy;
+			return;
+		}
+
+		// Check door
+		double doorSideWallWidth = (BLOCK_SIZE - DOOR_WIDTH) / 2.0;
+		boolean insideXDoorRange = playerOffsetX - playerRadius > doorSideWallWidth &&
+				playerOffsetX + playerRadius < BLOCK_SIZE - doorSideWallWidth;
+		boolean insideYDoorRange = playerOffsetY - playerRadius > doorSideWallWidth &&
+				playerOffsetY + playerRadius < BLOCK_SIZE - doorSideWallWidth;
+		if ((!validXLeft || !validXRight) && insideYDoorRange) {
+			mPlayerX += dx;
+			mPlayerY += dy;
+		}
+		if ((!validYTop || !validYBottom) && insideXDoorRange) {
+			mPlayerX += dx;
+			mPlayerY += dy;
 		}
 	}
 
