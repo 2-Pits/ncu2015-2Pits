@@ -29,7 +29,7 @@ public class BallsMain extends JPanel {
 
 	// App configurations
 	private static final String APP_NAME = "Balls";
-	private static final int PLAYER_SPEED = 300;
+	private static final int PLAYER_SPEED = 150;
 	private static final float FPS_CAP = 60f;
 	private static final float MAX_VISIBLE_BLOCKS_IN_HEIGHT = 3.0f;
 	private static final float MAX_VISIBLE_BLOCKS_IN_WIDTH = 5.0f;
@@ -103,44 +103,27 @@ public class BallsMain extends JPanel {
 		}
 	}
 
-	private static final int MAP_WIDTH = 50, MAP_HEIGHT = 20;
-	private double mPlayerX = 2500, mPlayerY = 1000;
+	private static final int MAP_WIDTH = 10, MAP_HEIGHT = 10;
+	private double mPlayerX = 0, mPlayerY = 0;
 
 	private static final int BLOCK_SIZE = 100;
 
 	private enum BasicBlock {
-		GRASS, ROCK, DIRT, WATER, LAVA;
-
+		DARK, LIGHT
 	}
 
 	private static Image[] mBlockImages;
 
-	private static BasicBlock[][] mBlocks;
-
 	public BallsMain() {
-		mBlocks = initMap();
 		mBlockImages = initBlockResources();
-	}
-
-	private BasicBlock[][] initMap() {
-		BasicBlock[][] scene = new BasicBlock[MAP_WIDTH][];
-		for (int row = 0; row < MAP_WIDTH; row++) {
-			scene[row] = new BasicBlock[MAP_HEIGHT];
-			for (int col = 0; col < MAP_HEIGHT; col++) {
-				scene[row][col] =
-						BasicBlock.values()[((int) (Math.random() * BasicBlock.values().length))];
-			}
-		}
-		return scene;
 	}
 
 	private Image[] initBlockResources() {
 		Image[] images = new Image[BasicBlock.values().length];
-		images[BasicBlock.GRASS.ordinal()] = Toolkit.getDefaultToolkit().getImage("res/grass.png");
-		images[BasicBlock.ROCK.ordinal()] = Toolkit.getDefaultToolkit().getImage("res/rock.png");
-		images[BasicBlock.DIRT.ordinal()] = Toolkit.getDefaultToolkit().getImage("res/dirt.png");
-		images[BasicBlock.WATER.ordinal()] = Toolkit.getDefaultToolkit().getImage("res/water.png");
-		images[BasicBlock.LAVA.ordinal()] = Toolkit.getDefaultToolkit().getImage("res/lava.png");
+		images[BasicBlock.DARK.ordinal()] =
+				Toolkit.getDefaultToolkit().getImage("res/room_dark.png");
+		images[BasicBlock.LIGHT.ordinal()] =
+				Toolkit.getDefaultToolkit().getImage("res/room_light.png");
 		return images;
 	}
 
@@ -235,33 +218,34 @@ public class BallsMain extends JPanel {
 		int visibleBlockW = (int) (this.getWidth() / zoom) / BLOCK_SIZE + 2;
 		int visibleBlockH = (int) (this.getHeight() / zoom) / BLOCK_SIZE + 2;
 
-		g2d.setStroke(new BasicStroke(2 * zoom));
-		for (int row = 0; row < visibleBlockW; row++) {
-			for (int col = 0; col < visibleBlockH; col++) {
-				int drawingBlockX = Math.floorMod(row + visibleBlockX, MAP_WIDTH);
-				int drawingBlockY = Math.floorMod(col + visibleBlockY, MAP_HEIGHT);
-				BasicBlock block = mBlocks[drawingBlockX][drawingBlockY];
+		for (int screenBlockX = 0; screenBlockX < visibleBlockW; screenBlockX++) {
+			for (int screenBlockY = 0; screenBlockY < visibleBlockH; screenBlockY++) {
+				int mapBlockX = screenBlockX + visibleBlockX;
+				int mapBlockY = screenBlockY + visibleBlockY;
+				BasicBlock block =
+						isUserInBlock(mapBlockX, mapBlockY) ? BasicBlock.LIGHT : BasicBlock.DARK;
 
-				int drawPositionX = (int) ((row * BLOCK_SIZE - screenOffsetX) * zoom);
-				int drawPositionY = (int) ((col * BLOCK_SIZE - screenOffsetY) * zoom);
+				int drawPositionX = (int) ((screenBlockX * BLOCK_SIZE - screenOffsetX) * zoom);
+				int drawPositionY = (int) ((screenBlockY * BLOCK_SIZE - screenOffsetY) * zoom);
 				int drawBlockSize = (int) Math.ceil(BLOCK_SIZE * zoom);
 
 				g2d.drawImage(mBlockImages[block.ordinal()], drawPositionX, drawPositionY,
 						drawBlockSize, drawBlockSize, null);
-				g2d.setColor(Color.BLACK);
-				g2d.drawRect(drawPositionX, drawPositionY, drawBlockSize, drawBlockSize);
-				g2d.drawString(String.format("(%d,%d)", drawingBlockX, drawingBlockY),
+				// Draw block info
+				g2d.setColor(new Color(0xff35160a));
+				g2d.drawString(String.format("(%d,%d)", mapBlockX, mapBlockY),
 						drawPositionX + (10 * zoom), drawPositionY + (20 * zoom));
 			}
 		}
 
 		// TODO Draw players
-		int fakePlayerRadius = (int) (4 * zoom);
+		int fakePlayerRadius = (int) (8 * zoom);
 		g2d.setColor(Color.LIGHT_GRAY);
 		g2d.fillOval(this.getWidth() / 2 - fakePlayerRadius,
 				this.getHeight() / 2 - fakePlayerRadius, 2 * fakePlayerRadius,
 				2 * fakePlayerRadius);
 		g2d.setColor(Color.BLACK);
+		g2d.setStroke(new BasicStroke(2 * zoom));
 		g2d.drawOval(this.getWidth() / 2 - fakePlayerRadius,
 				this.getHeight() / 2 - fakePlayerRadius, 2 * fakePlayerRadius,
 				2 * fakePlayerRadius);
@@ -306,5 +290,11 @@ public class BallsMain extends JPanel {
 					String.format("Player position: (%d,%d)", (int) mPlayerX, (int) mPlayerY),
 					drawTextPositionX, drawTextPositionY);
 		}
+	}
+
+	private boolean isUserInBlock(int mapBlockX, int mapBlockY) {
+		int playerBlockX = Math.floorDiv((int) mPlayerX, BLOCK_SIZE);
+		int playerBlockY = Math.floorDiv((int) mPlayerY, BLOCK_SIZE);
+		return playerBlockX == mapBlockX && playerBlockY == mapBlockY;
 	}
 }
