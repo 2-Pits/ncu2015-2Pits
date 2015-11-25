@@ -232,10 +232,6 @@ public class BallsMain extends JPanel {
 				playerOffsetXBefore + playerRadius < BLOCK_SIZE - doorSideWallWidth;
 		boolean insideYDoorRangeBefore = playerOffsetYBefore - playerRadius > doorSideWallWidth &&
 				playerOffsetYBefore + playerRadius < BLOCK_SIZE - doorSideWallWidth;
-		boolean insideXDoorRangeAfter = playerOffsetXAfter - playerRadius > doorSideWallWidth &&
-				playerOffsetXAfter + playerRadius < BLOCK_SIZE - doorSideWallWidth;
-		boolean insideYDoorRangeAfter = playerOffsetYAfter - playerRadius > doorSideWallWidth &&
-				playerOffsetYAfter + playerRadius < BLOCK_SIZE - doorSideWallWidth;
 
 		if ((!validLeftAfter || !validRightAfter) && !insideYDoorRangeBefore) {
 			dx = 0;
