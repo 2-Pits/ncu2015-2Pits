@@ -23,27 +23,29 @@ import javax.swing.JPanel;
 import javax.swing.WindowConstants;
 
 /**
- * Main class of game "Balls"
+ * Scene render engine
  * Created by hiking on 2015/10/26.
  */
-public class BallsMain extends JPanel {
+public class SceneRenderEngine extends JPanel {
 
 	// App configurations
 	private static final String APP_NAME = "Balls";
 	private static final int PLAYER_SPEED = 300;
-	private static final float FPS_CAP = 60f;
 	private static final float MAX_VISIBLE_BLOCKS_IN_HEIGHT = 3.0f;
 	private static final float MAX_VISIBLE_BLOCKS_IN_WIDTH = 5.0f;
 
+	private static RenderThread mRenderThread;
 	private static BallsKeyManager mKeyManager;
 	private static Font mGameFont;
 
 	public static void main(String[] args) {
-		BallsMain game = initGame();
-		game.startRenderThread();
+		SceneRenderEngine game = initRenderEngine();
+
+		mRenderThread = new RenderThread(game);
+		mRenderThread.startRenderThread();
 	}
 
-	public static BallsMain initGame() {
+	public static SceneRenderEngine initRenderEngine() {
 		initValues();
 
 		JFrame frame = new JFrame(APP_NAME);
@@ -53,28 +55,13 @@ public class BallsMain extends JPanel {
 		Utils.setWindowsToCenter(frame);
 		Utils.enableOsxFullscreen(frame, APP_NAME);
 
-		BallsMain game = new BallsMain();
+		SceneRenderEngine game = new SceneRenderEngine();
 		frame.add(game);
 		frame.setVisible(true);
 		mKeyManager = new BallsKeyManager();
 		frame.addKeyListener(mKeyManager);
 
 		return game;
-	}
-
-	public void startRenderThread() {
-		new Thread(() -> {
-			long lastFrameTime = System.currentTimeMillis();
-			// noinspection InfiniteLoopStatement
-			while (true) {
-				long currentTime = System.currentTimeMillis();
-				long dt = currentTime - lastFrameTime;
-				lastFrameTime = currentTime;
-				if (dt > 0) {
-					this.update(dt);
-				}
-			}
-		}).start();
 	}
 
 	private static void initValues() {
@@ -148,7 +135,7 @@ public class BallsMain extends JPanel {
 
 	private static BasicBlock[][] mBlocks;
 
-	public BallsMain() {
+	public SceneRenderEngine() {
 		loadMap(getRandomMap());
 		mBlockImages = initBlockResources();
 	}
@@ -202,26 +189,9 @@ public class BallsMain extends JPanel {
 		}
 	}
 
-	// For the update cycle
-	private float mSmoothedDt = 1000 / FPS_CAP;
-	private long mSleepDuration;
-
-	private void update(long dt) {
+	public void update(long dt) {
 		updatePlayerPosition(dt);
 		repaint();
-
-		mSmoothedDt = (mSmoothedDt * 9f + dt - mSleepDuration) / 10f;
-		mSleepDuration = (long) (1000 / FPS_CAP - mSmoothedDt);
-		if (mSleepDuration > 0l) {
-			// Cap the screen rate
-			try {
-				Thread.sleep(mSleepDuration);
-			} catch (InterruptedException e) {
-				e.printStackTrace();
-			}
-		} else {
-			mSleepDuration = 0;
-		}
 	}
 
 	private void updatePlayerPosition(long dt) {
@@ -317,8 +287,11 @@ public class BallsMain extends JPanel {
 			int lineHeight = (int) (20 * zoom);
 
 			g2d.setColor(Color.WHITE);
-			g2d.drawString(String.format("FPS: %.0f (%d)", 1000 / (mSmoothedDt + mSleepDuration),
-					mSleepDuration), drawTextPositionX, drawTextPositionY);
+			if (mRenderThread != null) {
+				g2d.drawString(String.format("FPS: %.0f (%d)", mRenderThread.getCurrentFPS(),
+								mRenderThread.getCurrentSleepDuration()), drawTextPositionX,
+						drawTextPositionY);
+			}
 
 			// noinspection ConstantConditions
 			if (DEBUG_PLAYER) {
