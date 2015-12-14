@@ -59,6 +59,13 @@ public class SceneRenderEngine extends JPanel {
 		frame.pack();
 		Utils.setWindowsToCenter(frame);
 		Utils.enableOsxFullscreen(frame, APP_NAME);
+
+		if (sceneData == null) {
+			throw new IllegalArgumentException("Scene data can't be null.");
+		} else if (sceneData.getBlocks() == null) {
+			throw new IllegalArgumentException(
+					"Should call setMap() before passing into " + "initRenderEngine().");
+		}
 		SceneRenderEngine renderEngine = new SceneRenderEngine(sceneData);
 
 		frame.add(renderEngine);

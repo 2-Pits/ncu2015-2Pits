@@ -2,8 +2,6 @@ package com.twopits.balls;
 
 import org.junit.Test;
 
-import java.security.InvalidParameterException;
-
 import static com.twopits.balls.SceneDataManager.BLOCK_SIZE;
 import static com.twopits.balls.SceneDataManager.MAP_HEIGHT;
 import static com.twopits.balls.SceneDataManager.MAP_WIDTH;
@@ -22,6 +20,16 @@ public class RenderTest {
 				SceneRenderEngine.initRenderEngine(SceneDataManager.newRandomDataInstance());
 		RenderThread renderThread = new RenderThread(game);
 		renderThread.startRenderThread();
+	}
+
+	@org.junit.Test(expected = IllegalArgumentException.class)
+	public void testStartRenderThreadWithNullSceneData() throws Exception {
+		SceneRenderEngine.initRenderEngine(null);
+	}
+
+	@org.junit.Test(expected = IllegalArgumentException.class)
+	public void testStartRenderThreadWithEmptySceneData() throws Exception {
+		SceneRenderEngine.initRenderEngine(new SceneDataManager());
 	}
 
 	@org.junit.Test
@@ -43,11 +51,11 @@ public class RenderTest {
 	public void testSetVirtualCharacterXY() throws Exception {
 		SceneRenderEngine game =
 				SceneRenderEngine.initRenderEngine(SceneDataManager.newRandomDataInstance());
-		for (int i = 0; i < 50; i++) {
+		for (int i = 0; i < 100; i++) {
 			game.setVirtualCharacterXY(getRandomPlayerPosition());
 			assertTrue(isValidPosition(game.getVirtualCharacterXY()));
 			game.update(0);
-			Thread.sleep(100);
+			Thread.sleep(20);
 		}
 	}
 
@@ -57,13 +65,13 @@ public class RenderTest {
 		return new SceneRenderEngine.Position(x, y);
 	}
 
-	@org.junit.Test(expected = InvalidParameterException.class)
+	@org.junit.Test(expected = IllegalArgumentException.class)
 	public void testLoadWrongSizeMap() throws Exception {
 		SceneDataManager sceneDataManager = new SceneDataManager();
 		sceneDataManager.loadMap(new SceneBlock[MAP_WIDTH - 1][MAP_HEIGHT]);
 	}
 
-	@org.junit.Test(expected = InvalidParameterException.class)
+	@org.junit.Test(expected = IllegalArgumentException.class)
 	public void testLoadNullElementMap() throws Exception {
 		SceneDataManager sceneDataManager = new SceneDataManager();
 		SceneBlock[][] blocks = SceneDataManager.getRandomMap();

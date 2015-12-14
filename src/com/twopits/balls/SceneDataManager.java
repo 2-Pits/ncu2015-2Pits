@@ -35,7 +35,7 @@ public class SceneDataManager {
 
 	public void loadMap(SceneBlock[][] map) {
 		if (map.length != MAP_WIDTH || map[0].length != MAP_HEIGHT) {
-			throw new InvalidParameterException("Map should be " + MAP_WIDTH + " * " + MAP_HEIGHT);
+			throw new IllegalArgumentException("Map should be " + MAP_WIDTH + " * " + MAP_HEIGHT);
 		}
 		for (int row = 0; row < map.length; row++) {
 			SceneBlock[] blockRow = map[row];
