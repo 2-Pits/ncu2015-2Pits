@@ -14,6 +14,7 @@ import java.awt.Toolkit;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 import java.io.File;
+import java.security.InvalidParameterException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -38,11 +39,13 @@ public class BallsMain extends JPanel {
 	private static Font mGameFont;
 
 	public static void main(String[] args) {
-		initValues();
-		startRenderThread();
+		BallsMain game = initGame();
+		game.startRenderThread();
 	}
 
-	private static void startRenderThread() {
+	public static BallsMain initGame() {
+		initValues();
+
 		JFrame frame = new JFrame(APP_NAME);
 		frame.getContentPane().setPreferredSize(new Dimension(500, 300));
 		frame.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
@@ -56,16 +59,22 @@ public class BallsMain extends JPanel {
 		mKeyManager = new BallsKeyManager();
 		frame.addKeyListener(mKeyManager);
 
-		long lastFrameTime = System.currentTimeMillis();
-		// noinspection InfiniteLoopStatement
-		while (true) {
-			long currentTime = System.currentTimeMillis();
-			long dt = currentTime - lastFrameTime;
-			lastFrameTime = currentTime;
-			if (dt > 0) {
-				game.update(dt);
+		return game;
+	}
+
+	public void startRenderThread() {
+		new Thread(() -> {
+			long lastFrameTime = System.currentTimeMillis();
+			// noinspection InfiniteLoopStatement
+			while (true) {
+				long currentTime = System.currentTimeMillis();
+				long dt = currentTime - lastFrameTime;
+				lastFrameTime = currentTime;
+				if (dt > 0) {
+					this.update(dt);
+				}
 			}
-		}
+		}).start();
 	}
 
 	private static void initValues() {
@@ -81,12 +90,28 @@ public class BallsMain extends JPanel {
 		return new Position(mPlayerX, mPlayerY);
 	}
 
+	public void setVirtualCharacterXY(Position position) {
+		setVirtualCharacterXY(position.x, position.y);
+	}
+
+	public void setVirtualCharacterXY(double x, double y) {
+		mPlayerX = x;
+		mPlayerY = y;
+
+		if (mPlayerX < 0 || mPlayerX > MAP_WIDTH * BLOCK_SIZE) {
+			mPlayerX = Utils.floorMod(mPlayerX, MAP_WIDTH * BLOCK_SIZE);
+		}
+		if (mPlayerY < 0 || mPlayerY > MAP_HEIGHT * BLOCK_SIZE) {
+			mPlayerY = Utils.floorMod(mPlayerY, MAP_HEIGHT * BLOCK_SIZE);
+		}
+	}
+
 	static class BallsKeyManager implements KeyListener {
 
 		private List<Integer> mPressedKeys;
 
 		public BallsKeyManager() {
-			mPressedKeys = new ArrayList<Integer>();
+			mPressedKeys = new ArrayList<>();
 		}
 
 		public boolean isKeyPressed(int keyCode) {
@@ -110,14 +135,13 @@ public class BallsMain extends JPanel {
 		}
 	}
 
-	private static final int MAP_WIDTH = 50, MAP_HEIGHT = 20;
+	public static final int MAP_WIDTH = 50, MAP_HEIGHT = 20;
 	private double mPlayerX = 2500, mPlayerY = 1000;
 
-	private static final int BLOCK_SIZE = 100;
+	public static final int BLOCK_SIZE = 100;
 
-	private enum BasicBlock {
+	public enum BasicBlock {
 		GRASS, ROCK, DIRT, WATER, LAVA;
-
 	}
 
 	private static Image[] mBlockImages;
@@ -130,6 +154,20 @@ public class BallsMain extends JPanel {
 	}
 
 	public void loadMap(BasicBlock[][] map) {
+		if (map.length != MAP_WIDTH || map[0].length != MAP_HEIGHT) {
+			throw new InvalidParameterException("Map should be " + MAP_WIDTH + " * " + MAP_HEIGHT);
+		}
+		for (int row = 0; row < map.length; row++) {
+			BasicBlock[] blockRow = map[row];
+			for (int col = 0; col < blockRow.length; col++) {
+				BasicBlock block = blockRow[col];
+				if (block == null) {
+					throw new InvalidParameterException("Block at (" + row + ", " +
+							col + ") shouldn't be null.");
+				}
+			}
+		}
+
 		mBlocks = map;
 	}
 
@@ -208,17 +246,9 @@ public class BallsMain extends JPanel {
 			playerWayY /= unitFactor;
 		}
 
-		mPlayerX += playerWayX * PLAYER_SPEED * dt / 1000.0;
-		mPlayerY += playerWayY * PLAYER_SPEED * dt / 1000.0;
-
-		if (playerWayX != 0 || playerWayY != 0) {
-			if (mPlayerX < 0 || mPlayerX > MAP_WIDTH * BLOCK_SIZE) {
-				mPlayerX = Utils.floorMod(mPlayerX, MAP_WIDTH * BLOCK_SIZE);
-			}
-			if (mPlayerY < 0 || mPlayerY > MAP_HEIGHT * BLOCK_SIZE) {
-				mPlayerY = Utils.floorMod(mPlayerY, MAP_HEIGHT * BLOCK_SIZE);
-			}
-		}
+		double newPlayerX = mPlayerX + playerWayX * PLAYER_SPEED * dt / 1000.0;
+		double newPlayerY = mPlayerY + playerWayY * PLAYER_SPEED * dt / 1000.0;
+		setVirtualCharacterXY(newPlayerX, newPlayerY);
 	}
 
 	@Override
@@ -320,7 +350,7 @@ public class BallsMain extends JPanel {
 		}
 	}
 
-	class Position {
+	static class Position {
 
 		public double x, y;
 
