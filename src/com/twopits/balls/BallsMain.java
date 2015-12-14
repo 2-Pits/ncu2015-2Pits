@@ -39,7 +39,10 @@ public class BallsMain extends JPanel {
 
 	public static void main(String[] args) {
 		initValues();
+		startRenderThread();
+	}
 
+	private static void startRenderThread() {
 		JFrame frame = new JFrame(APP_NAME);
 		frame.getContentPane().setPreferredSize(new Dimension(500, 300));
 		frame.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
@@ -72,6 +75,10 @@ public class BallsMain extends JPanel {
 			e.printStackTrace();
 			mGameFont = new Font(Font.SANS_SERIF, Font.PLAIN, 12);
 		}
+	}
+
+	public Position getVirtualCharacterXY() {
+		return new Position(mPlayerX, mPlayerY);
 	}
 
 	static class BallsKeyManager implements KeyListener {
@@ -118,11 +125,15 @@ public class BallsMain extends JPanel {
 	private static BasicBlock[][] mBlocks;
 
 	public BallsMain() {
-		mBlocks = initMap();
+		loadMap(getRandomMap());
 		mBlockImages = initBlockResources();
 	}
 
-	private BasicBlock[][] initMap() {
+	public void loadMap(BasicBlock[][] map) {
+		mBlocks = map;
+	}
+
+	private BasicBlock[][] getRandomMap() {
 		BasicBlock[][] scene = new BasicBlock[MAP_WIDTH][];
 		for (int row = 0; row < MAP_WIDTH; row++) {
 			scene[row] = new BasicBlock[MAP_HEIGHT];
@@ -214,20 +225,20 @@ public class BallsMain extends JPanel {
 	public void paint(Graphics g) {
 		super.paint(g);
 
-		Graphics2D g2d = (Graphics2D) g;
-		float zoom = getZoomFactor();
-		g2d.setFont(mGameFont.deriveFont(10 * zoom));
-
-		drawMap(g2d, zoom);
+		renderScene((Graphics2D) g);
 	}
 
 	@SuppressWarnings("SuspiciousNameCombination")
-	private void drawMap(Graphics2D g2d, float zoom) {
+	private void renderScene(Graphics2D g2d) {
+		Position playerPosition = getVirtualCharacterXY();
+		float zoom = getZoomFactor();
+
 		g2d.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+		g2d.setFont(mGameFont.deriveFont(10 * zoom));
 
 		// Map
-		int screenPositionX = (int) (mPlayerX - this.getWidth() / zoom / 2.0);
-		int screenPositionY = (int) (mPlayerY - this.getHeight() / zoom / 2.0);
+		int screenPositionX = (int) (playerPosition.x - this.getWidth() / zoom / 2.0);
+		int screenPositionY = (int) (playerPosition.y - this.getHeight() / zoom / 2.0);
 		int screenOffsetX = Math.floorMod(screenPositionX, BLOCK_SIZE);
 		int screenOffsetY = Math.floorMod(screenPositionY, BLOCK_SIZE);
 		int visibleBlockX = Math.floorDiv(screenPositionX, BLOCK_SIZE);
@@ -282,14 +293,16 @@ public class BallsMain extends JPanel {
 			// noinspection ConstantConditions
 			if (DEBUG_PLAYER) {
 				drawTextPositionY -= lineHeight;
-				g2d.drawString(String.format("Player offset: (%d,%d)", (int) mPlayerX % BLOCK_SIZE,
-						(int) mPlayerY % BLOCK_SIZE), drawTextPositionX, drawTextPositionY);
+				g2d.drawString(
+						String.format("Player offset: (%d,%d)", (int) playerPosition.x % BLOCK_SIZE,
+								(int) playerPosition.y % BLOCK_SIZE), drawTextPositionX,
+						drawTextPositionY);
 
 				drawTextPositionY -= lineHeight;
 				g2d.drawString(String.format("Player block: (%d,%d)",
-								(int) mPlayerX / BLOCK_SIZE % MAP_WIDTH,
-								(int) mPlayerY / BLOCK_SIZE % MAP_HEIGHT), drawTextPositionX,
-						drawTextPositionY);
+								(int) playerPosition.x / BLOCK_SIZE % MAP_WIDTH,
+								(int) playerPosition.y / BLOCK_SIZE % MAP_HEIGHT),
+						drawTextPositionX, drawTextPositionY);
 			} else {
 				drawTextPositionY -= lineHeight;
 				g2d.drawString(
@@ -302,9 +315,18 @@ public class BallsMain extends JPanel {
 			}
 
 			drawTextPositionY -= lineHeight;
-			g2d.drawString(
-					String.format("Player position: (%d,%d)", (int) mPlayerX, (int) mPlayerY),
-					drawTextPositionX, drawTextPositionY);
+			g2d.drawString(String.format("Player position: (%d,%d)", (int) playerPosition.x,
+					(int) playerPosition.y), drawTextPositionX, drawTextPositionY);
+		}
+	}
+
+	class Position {
+
+		public double x, y;
+
+		public Position(double x, double y) {
+			this.x = x;
+			this.y = y;
 		}
 	}
 }
