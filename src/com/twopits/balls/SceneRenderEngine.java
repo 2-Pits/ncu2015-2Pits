@@ -158,7 +158,7 @@ public class SceneRenderEngine extends JPanel {
 		mBlocks = map;
 	}
 
-	private BasicBlock[][] getRandomMap() {
+	public static BasicBlock[][] getRandomMap() {
 		BasicBlock[][] scene = new BasicBlock[MAP_WIDTH][];
 		for (int row = 0; row < MAP_WIDTH; row++) {
 			scene[row] = new BasicBlock[MAP_HEIGHT];

@@ -7,7 +7,7 @@ import java.security.InvalidParameterException;
 import static org.junit.Assert.assertTrue;
 
 /**
- * A test class for SceneRenderEngine
+ * A test class for SceneRenderEngine & RenderThread
  * Created by hiking on 2015/12/14.
  */
 public class RenderTest {
@@ -39,6 +39,8 @@ public class RenderTest {
 		for (int i = 0; i < 50; i++) {
 			game.setVirtualCharacterXY(getRandomPlayerPosition());
 			assertTrue(isValidPosition(game.getVirtualCharacterXY()));
+			game.update(0);
+			Thread.sleep(100);
 		}
 	}
 
@@ -53,5 +55,13 @@ public class RenderTest {
 		SceneRenderEngine game = SceneRenderEngine.initRenderEngine();
 		game.loadMap(new SceneRenderEngine.BasicBlock[SceneRenderEngine.MAP_WIDTH -
 				1][SceneRenderEngine.MAP_HEIGHT]);
+	}
+
+	@org.junit.Test(expected = InvalidParameterException.class)
+	public void testLoadNullElementMap() throws Exception {
+		SceneRenderEngine game = SceneRenderEngine.initRenderEngine();
+		SceneRenderEngine.BasicBlock[][] blocks = SceneRenderEngine.getRandomMap();
+		blocks[0][0] = null;
+		game.loadMap(blocks);
 	}
 }
