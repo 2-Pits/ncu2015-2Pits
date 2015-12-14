@@ -14,13 +14,17 @@ import java.awt.Toolkit;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 import java.io.File;
-import java.security.InvalidParameterException;
 import java.util.ArrayList;
 import java.util.List;
 
 import javax.swing.JFrame;
 import javax.swing.JPanel;
 import javax.swing.WindowConstants;
+
+import static com.twopits.balls.SceneDataManager.BLOCK_SIZE;
+import static com.twopits.balls.SceneDataManager.MAP_HEIGHT;
+import static com.twopits.balls.SceneDataManager.MAP_WIDTH;
+import static com.twopits.balls.SceneDataManager.SceneBlock;
 
 /**
  * Scene render engine
@@ -39,13 +43,14 @@ public class SceneRenderEngine extends JPanel {
 	private static Font mGameFont;
 
 	public static void main(String[] args) {
-		SceneRenderEngine game = initRenderEngine();
+		SceneDataManager sceneData = SceneDataManager.newRandomDataInstance();
+		SceneRenderEngine game = initRenderEngine(sceneData);
 
 		mRenderThread = new RenderThread(game);
 		mRenderThread.startRenderThread();
 	}
 
-	public static SceneRenderEngine initRenderEngine() {
+	public static SceneRenderEngine initRenderEngine(SceneDataManager sceneData) {
 		initValues();
 
 		JFrame frame = new JFrame(APP_NAME);
@@ -54,14 +59,14 @@ public class SceneRenderEngine extends JPanel {
 		frame.pack();
 		Utils.setWindowsToCenter(frame);
 		Utils.enableOsxFullscreen(frame, APP_NAME);
+		SceneRenderEngine renderEngine = new SceneRenderEngine(sceneData);
 
-		SceneRenderEngine game = new SceneRenderEngine();
-		frame.add(game);
+		frame.add(renderEngine);
 		frame.setVisible(true);
 		mKeyManager = new BallsKeyManager();
 		frame.addKeyListener(mKeyManager);
 
-		return game;
+		return renderEngine;
 	}
 
 	private static void initValues() {
@@ -122,61 +127,23 @@ public class SceneRenderEngine extends JPanel {
 		}
 	}
 
-	public static final int MAP_WIDTH = 50, MAP_HEIGHT = 20;
 	private double mPlayerX = 2500, mPlayerY = 1000;
 
-	public static final int BLOCK_SIZE = 100;
-
-	public enum BasicBlock {
-		GRASS, ROCK, DIRT, WATER, LAVA;
-	}
-
 	private static Image[] mBlockImages;
+	private static SceneDataManager mSceneDataManager;
 
-	private static BasicBlock[][] mBlocks;
-
-	public SceneRenderEngine() {
-		loadMap(getRandomMap());
+	public SceneRenderEngine(SceneDataManager sceneDataManager) {
 		mBlockImages = initBlockResources();
-	}
-
-	public void loadMap(BasicBlock[][] map) {
-		if (map.length != MAP_WIDTH || map[0].length != MAP_HEIGHT) {
-			throw new InvalidParameterException("Map should be " + MAP_WIDTH + " * " + MAP_HEIGHT);
-		}
-		for (int row = 0; row < map.length; row++) {
-			BasicBlock[] blockRow = map[row];
-			for (int col = 0; col < blockRow.length; col++) {
-				BasicBlock block = blockRow[col];
-				if (block == null) {
-					throw new InvalidParameterException("Block at (" + row + ", " +
-							col + ") shouldn't be null.");
-				}
-			}
-		}
-
-		mBlocks = map;
-	}
-
-	public static BasicBlock[][] getRandomMap() {
-		BasicBlock[][] scene = new BasicBlock[MAP_WIDTH][];
-		for (int row = 0; row < MAP_WIDTH; row++) {
-			scene[row] = new BasicBlock[MAP_HEIGHT];
-			for (int col = 0; col < MAP_HEIGHT; col++) {
-				scene[row][col] =
-						BasicBlock.values()[((int) (Math.random() * BasicBlock.values().length))];
-			}
-		}
-		return scene;
+		mSceneDataManager = sceneDataManager;
 	}
 
 	private Image[] initBlockResources() {
-		Image[] images = new Image[BasicBlock.values().length];
-		images[BasicBlock.GRASS.ordinal()] = Toolkit.getDefaultToolkit().getImage("res/grass.png");
-		images[BasicBlock.ROCK.ordinal()] = Toolkit.getDefaultToolkit().getImage("res/rock.png");
-		images[BasicBlock.DIRT.ordinal()] = Toolkit.getDefaultToolkit().getImage("res/dirt.png");
-		images[BasicBlock.WATER.ordinal()] = Toolkit.getDefaultToolkit().getImage("res/water.png");
-		images[BasicBlock.LAVA.ordinal()] = Toolkit.getDefaultToolkit().getImage("res/lava.png");
+		Image[] images = new Image[SceneBlock.values().length];
+		images[SceneBlock.GRASS.ordinal()] = Toolkit.getDefaultToolkit().getImage("res/grass.png");
+		images[SceneBlock.ROCK.ordinal()] = Toolkit.getDefaultToolkit().getImage("res/rock.png");
+		images[SceneBlock.DIRT.ordinal()] = Toolkit.getDefaultToolkit().getImage("res/dirt.png");
+		images[SceneBlock.WATER.ordinal()] = Toolkit.getDefaultToolkit().getImage("res/water.png");
+		images[SceneBlock.LAVA.ordinal()] = Toolkit.getDefaultToolkit().getImage("res/lava.png");
 		return images;
 	}
 
@@ -251,7 +218,7 @@ public class SceneRenderEngine extends JPanel {
 			for (int col = 0; col < visibleBlockH; col++) {
 				int drawingBlockX = Math.floorMod(row + visibleBlockX, MAP_WIDTH);
 				int drawingBlockY = Math.floorMod(col + visibleBlockY, MAP_HEIGHT);
-				BasicBlock block = mBlocks[drawingBlockX][drawingBlockY];
+				SceneBlock block = mSceneDataManager.getBlocks()[drawingBlockX][drawingBlockY];
 
 				int drawPositionX = (int) ((row * BLOCK_SIZE - screenOffsetX) * zoom);
 				int drawPositionY = (int) ((col * BLOCK_SIZE - screenOffsetY) * zoom);
@@ -289,7 +256,7 @@ public class SceneRenderEngine extends JPanel {
 			g2d.setColor(Color.WHITE);
 			if (mRenderThread != null) {
 				g2d.drawString(String.format("FPS: %.0f (%d)", mRenderThread.getCurrentFPS(),
-								mRenderThread.getCurrentSleepDuration()), drawTextPositionX,
+						mRenderThread.getCurrentSleepDuration()), drawTextPositionX,
 						drawTextPositionY);
 			}
 
@@ -303,9 +270,9 @@ public class SceneRenderEngine extends JPanel {
 
 				drawTextPositionY -= lineHeight;
 				g2d.drawString(String.format("Player block: (%d,%d)",
-								(int) playerPosition.x / BLOCK_SIZE % MAP_WIDTH,
-								(int) playerPosition.y / BLOCK_SIZE % MAP_HEIGHT),
-						drawTextPositionX, drawTextPositionY);
+						(int) playerPosition.x / BLOCK_SIZE % MAP_WIDTH,
+						(int) playerPosition.y / BLOCK_SIZE % MAP_HEIGHT), drawTextPositionX,
+						drawTextPositionY);
 			} else {
 				drawTextPositionY -= lineHeight;
 				g2d.drawString(

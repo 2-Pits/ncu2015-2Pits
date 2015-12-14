@@ -4,6 +4,10 @@ import org.junit.Test;
 
 import java.security.InvalidParameterException;
 
+import static com.twopits.balls.SceneDataManager.BLOCK_SIZE;
+import static com.twopits.balls.SceneDataManager.MAP_HEIGHT;
+import static com.twopits.balls.SceneDataManager.MAP_WIDTH;
+import static com.twopits.balls.SceneDataManager.SceneBlock;
 import static org.junit.Assert.assertTrue;
 
 /**
@@ -14,28 +18,31 @@ public class RenderTest {
 
 	@org.junit.Test
 	public void testStartRenderThread() throws Exception {
-		SceneRenderEngine game = SceneRenderEngine.initRenderEngine();
+		SceneRenderEngine game =
+				SceneRenderEngine.initRenderEngine(SceneDataManager.newRandomDataInstance());
 		RenderThread renderThread = new RenderThread(game);
 		renderThread.startRenderThread();
 	}
 
 	@org.junit.Test
 	public void testGetVirtualCharacterXY() throws Exception {
-		SceneRenderEngine game = SceneRenderEngine.initRenderEngine();
+		SceneRenderEngine game =
+				SceneRenderEngine.initRenderEngine(SceneDataManager.newRandomDataInstance());
 		SceneRenderEngine.Position playerPosition = game.getVirtualCharacterXY();
 		assertTrue(isValidPosition(playerPosition));
 	}
 
 	private boolean isValidPosition(SceneRenderEngine.Position playerPosition) {
 		return (playerPosition.x >= 0) &&
-				(playerPosition.x < SceneRenderEngine.MAP_WIDTH * SceneRenderEngine.BLOCK_SIZE) &&
+				(playerPosition.x < MAP_WIDTH * BLOCK_SIZE) &&
 				(playerPosition.y >= 0) &&
-				(playerPosition.y < SceneRenderEngine.MAP_HEIGHT * SceneRenderEngine.BLOCK_SIZE);
+				(playerPosition.y < MAP_HEIGHT * BLOCK_SIZE);
 	}
 
 	@Test
 	public void testSetVirtualCharacterXY() throws Exception {
-		SceneRenderEngine game = SceneRenderEngine.initRenderEngine();
+		SceneRenderEngine game =
+				SceneRenderEngine.initRenderEngine(SceneDataManager.newRandomDataInstance());
 		for (int i = 0; i < 50; i++) {
 			game.setVirtualCharacterXY(getRandomPlayerPosition());
 			assertTrue(isValidPosition(game.getVirtualCharacterXY()));
@@ -45,23 +52,22 @@ public class RenderTest {
 	}
 
 	private SceneRenderEngine.Position getRandomPlayerPosition() {
-		double x = Math.random() * SceneRenderEngine.MAP_WIDTH * SceneRenderEngine.BLOCK_SIZE * 10;
-		double y = Math.random() * SceneRenderEngine.MAP_HEIGHT * SceneRenderEngine.BLOCK_SIZE * 10;
+		double x = Math.random() * MAP_WIDTH * BLOCK_SIZE * 10;
+		double y = Math.random() * MAP_HEIGHT * BLOCK_SIZE * 10;
 		return new SceneRenderEngine.Position(x, y);
 	}
 
 	@org.junit.Test(expected = InvalidParameterException.class)
 	public void testLoadWrongSizeMap() throws Exception {
-		SceneRenderEngine game = SceneRenderEngine.initRenderEngine();
-		game.loadMap(new SceneRenderEngine.BasicBlock[SceneRenderEngine.MAP_WIDTH -
-				1][SceneRenderEngine.MAP_HEIGHT]);
+		SceneDataManager sceneDataManager = new SceneDataManager();
+		sceneDataManager.loadMap(new SceneBlock[MAP_WIDTH - 1][MAP_HEIGHT]);
 	}
 
 	@org.junit.Test(expected = InvalidParameterException.class)
 	public void testLoadNullElementMap() throws Exception {
-		SceneRenderEngine game = SceneRenderEngine.initRenderEngine();
-		SceneRenderEngine.BasicBlock[][] blocks = SceneRenderEngine.getRandomMap();
+		SceneDataManager sceneDataManager = new SceneDataManager();
+		SceneBlock[][] blocks = SceneDataManager.getRandomMap();
 		blocks[0][0] = null;
-		game.loadMap(blocks);
+		sceneDataManager.loadMap(blocks);
 	}
 }
