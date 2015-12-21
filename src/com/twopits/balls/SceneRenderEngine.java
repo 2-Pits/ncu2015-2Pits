@@ -258,6 +258,10 @@ public class SceneRenderEngine extends JPanel {
 						g2d.drawOval(drawPositionX + roomRadius - ballRadius,
 								drawPositionY + roomRadius - ballRadius, 2 * ballRadius,
 								2 * ballRadius);
+						g2d.setColor(new Color(0x66ffffff, true));
+						g2d.fillOval(drawPositionX + roomRadius + (int) (ballRadius * .2f),
+								drawPositionY + roomRadius - (int) (ballRadius * .6f),
+								(int) (ballRadius * .4f), (int) (ballRadius * .4f));
 					}
 				}
 			}
