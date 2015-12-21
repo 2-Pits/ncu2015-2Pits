@@ -240,7 +240,7 @@ public class SceneRenderEngine extends JPanel {
 				g2d.drawImage(mBlockImages[block.ordinal()], drawPositionX, drawPositionY,
 						drawBlockSize, drawBlockSize, null);
 				// Draw block info
-				g2d.setColor(new Color(0xff35160a));
+				g2d.setColor(isPlayerInBlock ? new Color(0xff35160a) : new Color(0xff444444));
 				g2d.drawString(String.format("(%d,%d)", Math.floorMod(mapBlockX, MAP_WIDTH),
 						Math.floorMod(mapBlockY, MAP_HEIGHT)), drawPositionX + (10 * zoom),
 						drawPositionY + (20 * zoom));
