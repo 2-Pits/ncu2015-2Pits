@@ -1,5 +1,10 @@
 package com.twopits.balls;
 
+import com.twopits.balls.libs.FakeData;
+import com.twopits.balls.libs.Utils;
+import com.twopits.balls.models.BallModel;
+import com.twopits.balls.models.IntegerPosition;
+
 import java.awt.BasicStroke;
 import java.awt.Color;
 import java.awt.Font;
@@ -30,9 +35,10 @@ public class SceneRenderEngine extends JPanel {
 
 	private static final int MAP_WIDTH = 10, MAP_HEIGHT = 10;
 	private static final int BLOCK_SIZE = 100;
+	private static final float BALL_RADIUS = BLOCK_SIZE * .08f;
 
-	// Initial player at the center of (0,0)
-	private double mPlayerX = BLOCK_SIZE / 2, mPlayerY = BLOCK_SIZE / 2;
+	// Initial player at the 1/4 of (0,0)
+	private double mPlayerX = BLOCK_SIZE / 4, mPlayerY = BLOCK_SIZE / 4;
 
 	private enum BasicBlock {
 		DARK, LIGHT
@@ -49,6 +55,9 @@ public class SceneRenderEngine extends JPanel {
 
 	private void initValues() {
 		mBlockImages = initBlockResources();
+
+		//TODO Remove fake data
+		FakeData.initBallsMap(MAP_WIDTH, MAP_HEIGHT);
 
 		try {
 			mGameFont = Font.createFont(Font.TRUETYPE_FONT, new File("res/supercell_magic.ttf"));
@@ -140,6 +149,17 @@ public class SceneRenderEngine extends JPanel {
 		boolean isInsideRoom =
 				validLeftAfter && validRightAfter && validTopAfter && validBottomAfter;
 		if (isInsideRoom) {
+			IntegerPosition playerBlock = getPlayerCurrentBlock();
+			BallModel playerBlockBall = FakeData.getBallsMap()[playerBlock.x][playerBlock.y];
+			boolean isTouchingBall = playerBlockBall != null &&
+					playerBlockBall.ballType != BallModel.BallType.NONE &&
+					Math.pow(playerOffsetXAfter - BLOCK_SIZE / 2f, 2) +
+							Math.pow(playerOffsetYAfter - BLOCK_SIZE / 2f, 2) <
+							Math.pow(BALL_RADIUS + PLAYER_SIZE / 2f, 2f);
+
+			if (isTouchingBall) {
+				return;
+			}
 			mPlayerX += dx;
 			mPlayerY += dy;
 			return;
@@ -194,17 +214,24 @@ public class SceneRenderEngine extends JPanel {
 		int screenPositionY = (int) (mPlayerY - this.getHeight() / zoom / 2.0);
 		int screenOffsetX = Math.floorMod(screenPositionX, BLOCK_SIZE);
 		int screenOffsetY = Math.floorMod(screenPositionY, BLOCK_SIZE);
-		int visibleBlockX = Math.floorDiv(screenPositionX, BLOCK_SIZE);
-		int visibleBlockY = Math.floorDiv(screenPositionY, BLOCK_SIZE);
+		int firstVisibleBlockX = Math.floorDiv(screenPositionX, BLOCK_SIZE);
+		int firstVisibleBlockY = Math.floorDiv(screenPositionY, BLOCK_SIZE);
 		int visibleBlockW = (int) (this.getWidth() / zoom) / BLOCK_SIZE + 2;
 		int visibleBlockH = (int) (this.getHeight() / zoom) / BLOCK_SIZE + 2;
 
+		// TODO Remove usage of fake data
+		BallModel[][] balls = FakeData.getBallsMap();
+		int ballRadius = (int) (BALL_RADIUS * zoom);
+		int roomRadius = (int) (BLOCK_SIZE * zoom / 2f);
+
 		for (int screenBlockX = 0; screenBlockX < visibleBlockW; screenBlockX++) {
 			for (int screenBlockY = 0; screenBlockY < visibleBlockH; screenBlockY++) {
-				int mapBlockX = screenBlockX + visibleBlockX;
-				int mapBlockY = screenBlockY + visibleBlockY;
-				BasicBlock block =
-						isUserInBlock(mapBlockX, mapBlockY) ? BasicBlock.LIGHT : BasicBlock.DARK;
+				// Actual block index in map
+				int mapBlockX = Math.floorMod(screenBlockX + firstVisibleBlockX, MAP_WIDTH);
+				int mapBlockY = Math.floorMod(screenBlockY + firstVisibleBlockY, MAP_HEIGHT);
+				boolean isPlayerInBlock = isPlayerInBlock(mapBlockX, mapBlockY);
+
+				BasicBlock block = isPlayerInBlock ? BasicBlock.LIGHT : BasicBlock.DARK;
 
 				int drawPositionX = (int) ((screenBlockX * BLOCK_SIZE - screenOffsetX) * zoom);
 				int drawPositionY = (int) ((screenBlockY * BLOCK_SIZE - screenOffsetY) * zoom);
@@ -217,6 +244,22 @@ public class SceneRenderEngine extends JPanel {
 				g2d.drawString(String.format("(%d,%d)", Math.floorMod(mapBlockX, MAP_WIDTH),
 						Math.floorMod(mapBlockY, MAP_HEIGHT)), drawPositionX + (10 * zoom),
 						drawPositionY + (20 * zoom));
+
+				// Draw ball
+				if (isPlayerInBlock) {
+					BallModel ballInRoom = balls[mapBlockX][mapBlockY];
+					if (ballInRoom != null && ballInRoom.ballType != BallModel.BallType.NONE) {
+						g2d.setColor(new Color(ballInRoom.getBallColor()));
+						g2d.fillOval(drawPositionX + roomRadius - ballRadius,
+								drawPositionY + roomRadius - ballRadius, 2 * ballRadius,
+								2 * ballRadius);
+						g2d.setColor(Color.BLACK);
+						g2d.setStroke(new BasicStroke(2 * zoom));
+						g2d.drawOval(drawPositionX + roomRadius - ballRadius,
+								drawPositionY + roomRadius - ballRadius, 2 * ballRadius,
+								2 * ballRadius);
+					}
+				}
 			}
 		}
 
@@ -268,8 +311,8 @@ public class SceneRenderEngine extends JPanel {
 						drawTextPositionX, drawTextPositionY);
 
 				drawTextPositionY -= lineHeight;
-				g2d.drawString(String.format("Screen block: (%d,%d)", visibleBlockX, visibleBlockY),
-						drawTextPositionX, drawTextPositionY);
+				g2d.drawString(String.format("Screen block: (%d,%d)", firstVisibleBlockX,
+						firstVisibleBlockY), drawTextPositionX, drawTextPositionY);
 			}
 
 			drawTextPositionY -= lineHeight;
@@ -279,9 +322,14 @@ public class SceneRenderEngine extends JPanel {
 		}
 	}
 
-	private boolean isUserInBlock(int mapBlockX, int mapBlockY) {
+	private boolean isPlayerInBlock(int mapBlockX, int mapBlockY) {
+		IntegerPosition playerBlock = getPlayerCurrentBlock();
+		return playerBlock.x == mapBlockX && playerBlock.y == mapBlockY;
+	}
+
+	private IntegerPosition getPlayerCurrentBlock() {
 		int playerBlockX = Math.floorDiv((int) mPlayerX, BLOCK_SIZE);
 		int playerBlockY = Math.floorDiv((int) mPlayerY, BLOCK_SIZE);
-		return playerBlockX == mapBlockX && playerBlockY == mapBlockY;
+		return new IntegerPosition(playerBlockX, playerBlockY);
 	}
 }
