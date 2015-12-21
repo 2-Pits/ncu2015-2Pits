@@ -1,10 +1,7 @@
 package com.twopits.balls;
 
-import com.twopits.balls.libs.Utils;
-
 import java.awt.BasicStroke;
 import java.awt.Color;
-import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
@@ -12,100 +9,24 @@ import java.awt.Image;
 import java.awt.RenderingHints;
 import java.awt.Toolkit;
 import java.awt.event.KeyEvent;
-import java.awt.event.KeyListener;
 import java.io.File;
-import java.util.ArrayList;
-import java.util.List;
 
-import javax.swing.JFrame;
 import javax.swing.JPanel;
-import javax.swing.WindowConstants;
 
 /**
- * Main class of game "Balls"
+ * Screen & world map rendering
  * Created by hiking on 2015/10/26.
  */
-public class BallsMain extends JPanel {
+public class SceneRenderEngine extends JPanel {
 
-	// App configurations
-	private static final String APP_NAME = "Balls";
+	// Scene configurations
 	private static final int PLAYER_SPEED = 150;
-	private static final float FPS_CAP = 60f;
 	private static final float MAX_VISIBLE_BLOCKS_IN_HEIGHT = 3.0f;
 	private static final float MAX_VISIBLE_BLOCKS_IN_WIDTH = 5.0f;
 
 	private static final float WALL_THICKNESS = 5f;
 	private static final float PLAYER_SIZE = 12f;
 	private static final float DOOR_WIDTH = 33f;
-
-	private static BallsKeyManager mKeyManager;
-	private static Font mGameFont;
-
-	public static void main(String[] args) {
-		initValues();
-
-		JFrame frame = new JFrame(APP_NAME);
-		frame.getContentPane().setPreferredSize(new Dimension(500, 300));
-		frame.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
-		frame.pack();
-		Utils.setWindowsToCenter(frame);
-		Utils.enableOsxFullscreen(frame, APP_NAME);
-
-		BallsMain game = new BallsMain();
-		frame.add(game);
-		frame.setVisible(true);
-		mKeyManager = new BallsKeyManager();
-		frame.addKeyListener(mKeyManager);
-
-		long lastFrameTime = System.currentTimeMillis();
-		// noinspection InfiniteLoopStatement
-		while (true) {
-			long currentTime = System.currentTimeMillis();
-			long dt = currentTime - lastFrameTime;
-			lastFrameTime = currentTime;
-			if (dt > 0) {
-				game.update(dt);
-			}
-		}
-	}
-
-	private static void initValues() {
-		try {
-			mGameFont = Font.createFont(Font.TRUETYPE_FONT, new File("res/supercell_magic.ttf"));
-		} catch (Exception e) {
-			e.printStackTrace();
-			mGameFont = new Font(Font.SANS_SERIF, Font.PLAIN, 12);
-		}
-	}
-
-	static class BallsKeyManager implements KeyListener {
-
-		private List<Integer> mPressedKeys;
-
-		public BallsKeyManager() {
-			mPressedKeys = new ArrayList<>();
-		}
-
-		public boolean isKeyPressed(int keyCode) {
-			return mPressedKeys.contains(keyCode);
-		}
-
-		@Override
-		public void keyTyped(KeyEvent e) {
-		}
-
-		@Override
-		public void keyPressed(KeyEvent e) {
-			if (!mPressedKeys.contains(e.getKeyCode())) {
-				mPressedKeys.add(e.getKeyCode());
-			}
-		}
-
-		@Override
-		public void keyReleased(KeyEvent e) {
-			mPressedKeys.remove((Integer) e.getKeyCode());
-		}
-	}
 
 	private static final int MAP_WIDTH = 10, MAP_HEIGHT = 10;
 	private static final int BLOCK_SIZE = 100;
@@ -117,10 +38,24 @@ public class BallsMain extends JPanel {
 		DARK, LIGHT
 	}
 
-	private static Image[] mBlockImages;
+	private App mApp;
+	private Font mGameFont;
+	private Image[] mBlockImages;
 
-	public BallsMain() {
+	public SceneRenderEngine(App app) {
+		mApp = app;
+		initValues();
+	}
+
+	private void initValues() {
 		mBlockImages = initBlockResources();
+
+		try {
+			mGameFont = Font.createFont(Font.TRUETYPE_FONT, new File("res/supercell_magic.ttf"));
+		} catch (Exception e) {
+			e.printStackTrace();
+			mGameFont = new Font(Font.SANS_SERIF, Font.PLAIN, 12);
+		}
 	}
 
 	private Image[] initBlockResources() {
@@ -141,41 +76,25 @@ public class BallsMain extends JPanel {
 		}
 	}
 
-	// For the update cycle
-	private float mSmoothedDt = 1000 / FPS_CAP;
-	private long mSleepDuration;
-
-	private void update(long dt) {
+	public void update(long dt) {
 		updatePlayerPosition(dt);
 		repaint();
-
-		mSmoothedDt = (mSmoothedDt * 9f + dt - mSleepDuration) / 10f;
-		mSleepDuration = (long) (1000 / FPS_CAP - mSmoothedDt);
-		if (mSleepDuration > 0L) {
-			// Cap the screen rate
-			try {
-				Thread.sleep(mSleepDuration);
-			} catch (InterruptedException e) {
-				e.printStackTrace();
-			}
-		} else {
-			mSleepDuration = 0;
-		}
 	}
 
 	private void updatePlayerPosition(long dt) {
 		double playerWayX = 0, playerWayY = 0;
+		KeyManager keyManager = mApp.getKeyManager();
 
-		if (mKeyManager.isKeyPressed(KeyEvent.VK_LEFT)) {
+		if (keyManager.isKeyPressed(KeyEvent.VK_LEFT)) {
 			playerWayX -= 1.0;
 		}
-		if (mKeyManager.isKeyPressed(KeyEvent.VK_RIGHT)) {
+		if (keyManager.isKeyPressed(KeyEvent.VK_RIGHT)) {
 			playerWayX += 1.0;
 		}
-		if (mKeyManager.isKeyPressed(KeyEvent.VK_UP)) {
+		if (keyManager.isKeyPressed(KeyEvent.VK_UP)) {
 			playerWayY -= 1.0;
 		}
-		if (mKeyManager.isKeyPressed(KeyEvent.VK_DOWN)) {
+		if (keyManager.isKeyPressed(KeyEvent.VK_DOWN)) {
 			playerWayY += 1.0;
 		}
 
@@ -296,7 +215,7 @@ public class BallsMain extends JPanel {
 				// Draw block info
 				g2d.setColor(new Color(0xff35160a));
 				g2d.drawString(String.format("(%d,%d)", Math.floorMod(mapBlockX, MAP_WIDTH),
-								Math.floorMod(mapBlockY, MAP_HEIGHT)), drawPositionX + (10 * zoom),
+						Math.floorMod(mapBlockY, MAP_HEIGHT)), drawPositionX + (10 * zoom),
 						drawPositionY + (20 * zoom));
 			}
 		}
@@ -323,8 +242,13 @@ public class BallsMain extends JPanel {
 			int lineHeight = (int) (20 * zoom);
 
 			g2d.setColor(Color.WHITE);
-			g2d.drawString(String.format("FPS: %.0f (%d)", 1000 / (mSmoothedDt + mSleepDuration),
-					mSleepDuration), drawTextPositionX, drawTextPositionY);
+
+			RenderThread renderThread = mApp.getRenderThread();
+			if (renderThread != null) {
+				g2d.drawString(String.format("FPS: %.0f (%d)", renderThread.getCurrentFPS(),
+						renderThread.getCurrentSleepDuration()), drawTextPositionX,
+						drawTextPositionY);
+			}
 
 			// noinspection ConstantConditions
 			if (DEBUG_PLAYER) {
@@ -334,8 +258,8 @@ public class BallsMain extends JPanel {
 
 				drawTextPositionY -= lineHeight;
 				g2d.drawString(String.format("Player block: (%d,%d)",
-								(int) mPlayerX / BLOCK_SIZE % MAP_WIDTH,
-								(int) mPlayerY / BLOCK_SIZE % MAP_HEIGHT), drawTextPositionX,
+						(int) mPlayerX / BLOCK_SIZE % MAP_WIDTH,
+						(int) mPlayerY / BLOCK_SIZE % MAP_HEIGHT), drawTextPositionX,
 						drawTextPositionY);
 			} else {
 				drawTextPositionY -= lineHeight;
