@@ -1,0 +1,127 @@
+package sprite;
+
+import java.awt.*;
+import java.awt.image.BufferedImage;
+
+/**
+ * Created by dblab on 2015/12/14.
+ */
+public class Character{
+    private BufferedImage[] images;
+    private int frame;
+    private int frameInit = -1;
+    private int index;
+    private double width;
+    private double height;
+    private double x;
+    private double y;
+    private double last_x;
+    private double last_y;
+    private boolean isMove;
+    private int speed;
+
+    public Character(double x, double y){
+        setPosition(x, y);
+        initChar();
+    }
+
+    private void initChar(){
+        last_x = x;
+        last_y = y;
+        isMove = false;
+        loadImage("resource/people.png");
+    }
+
+    public void setPosition(double x, double y){
+        last_x = this.x;
+        last_y = this.y;
+        this.x = x;
+        this.y = y;
+    }
+
+    public double getX(){
+        return this.x;
+    }
+
+    public double getY(){
+        return this.y;
+    }
+
+    public double getWidth(){
+        return this.width;
+    }
+
+    public double getHeight(){
+        return this.height;
+    }
+
+    public void setDirection(int dir){
+        isMove = true;
+        // If pressing the key continually before releaseing it, it would not initalize the frame.
+        if(frameInit != dir){
+            frame = dir;
+            frameInit = dir;
+        }
+    }
+
+    public int getDirection(){
+        return frameInit;
+    }
+
+    public void setIndex(int i){
+        this.index = i;
+    }
+
+    public int getIndex(){
+        return this.index;
+    }
+
+    public void setSpeed(int speed){
+        this.speed = speed;
+    }
+
+    public void incFrame(){
+        if(checkMove())
+            frame++;
+        if(frame == images.length || frame % 4  == 0)
+            frame = frameInit;
+    }
+
+    public boolean checkMove(){
+        if(last_x != x || last_y != y)
+            isMove = true;
+        else
+            isMove = false;
+        return isMove;
+    }
+
+    public void stop(){
+        isMove = false;
+    }
+
+    private void loadImage(String imagePath){
+        ImageSplit imageSplit = new ImageSplit();
+        imageSplit.loadImage(imagePath);
+        images = imageSplit.getImages();
+        setImageSize();
+    }
+
+    private void setImageSize(){
+        Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
+        width = screenSize.getWidth()/2;
+        height = screenSize.getHeight()/2;
+    }
+
+    public BufferedImage getImage(){
+        return images[frame];
+    }
+
+    public BufferedImage[] getSprites(){
+        return this.images;
+    }
+
+    public void draw(Graphics2D g2d){
+        g2d.drawImage(getImage(),getX(),getY(),null);
+    }
+
+}
