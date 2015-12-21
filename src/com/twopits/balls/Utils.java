@@ -1,4 +1,4 @@
-package com.twopits.balls.libs;
+package com.twopits.balls;
 
 import java.awt.Dimension;
 import java.awt.Toolkit;
