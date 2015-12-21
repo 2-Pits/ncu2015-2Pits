@@ -83,7 +83,7 @@ public class BallsMain extends JPanel {
 		private List<Integer> mPressedKeys;
 
 		public BallsKeyManager() {
-			mPressedKeys = new ArrayList<Integer>();
+			mPressedKeys = new ArrayList<>();
 		}
 
 		public boolean isKeyPressed(int keyCode) {
@@ -151,7 +151,7 @@ public class BallsMain extends JPanel {
 
 		mSmoothedDt = (mSmoothedDt * 9f + dt - mSleepDuration) / 10f;
 		mSleepDuration = (long) (1000 / FPS_CAP - mSmoothedDt);
-		if (mSleepDuration > 0l) {
+		if (mSleepDuration > 0L) {
 			// Cap the screen rate
 			try {
 				Thread.sleep(mSleepDuration);
