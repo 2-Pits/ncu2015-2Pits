@@ -10,7 +10,7 @@ public class Character{
     private BufferedImage[] images;
     private int frame;
     private int frameInit = -1;
-    private int index;
+    private int ID;
     private double width;
     private double height;
     private double x;
@@ -29,7 +29,8 @@ public class Character{
         last_x = x;
         last_y = y;
         isMove = false;
-        loadImage("resource/people.png");
+        loadImage("res/people.png");
+        setDirection(0);
     }
 
     public void setPosition(double x, double y){
@@ -68,12 +69,12 @@ public class Character{
         return frameInit;
     }
 
-    public void setIndex(int i){
-        this.index = i;
+    public void setID(int i){
+        this.ID = i;
     }
 
-    public int getIndex(){
-        return this.index;
+    public int getID(){
+        return this.ID;
     }
 
     public void setSpeed(int speed){
@@ -120,8 +121,5 @@ public class Character{
         return this.images;
     }
 
-    public void draw(Graphics2D g2d){
-        g2d.drawImage(getImage(),getX(),getY(),null);
-    }
 
 }

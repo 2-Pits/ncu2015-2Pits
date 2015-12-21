@@ -1,111 +1,79 @@
 package dom;
 
-
-import dom.DOMinterface;
-import sprite.Ball;
+import com.google.gson.Gson;
+import jdk.nashorn.api.scripting.JSObject;
 import sprite.Character;
-import sprite.Sprite;
-
 import java.awt.*;
-import java.util.Vector;
+import java.util.ArrayList;
+
 
 /**
  * Created by dblab on 2015/12/14.
  */
-public class DynamicObjectModule implements DOMinterface {
+public class DynamicObjectModule {
 
-    private Character[] characters;
     private Character mainChar;
-    private Vector object;
+    private ArrayList<Character> other;
     //private TCPCM tcp;
 
     public DynamicObjectModule(){
-        characters = new Character[4];
-        mainChar = new Character(0,0);
-        object = new Vector();
-        object.add(characters);
+        other = new  ArrayList<Character>();
         //this.tcp = tcp;
     }
 
-    @Override
-    public void addVirtualCharacter(int clientno){
-        /* called by UDPUC to add a main virtual character for the client computer clientno
-           in the module programming exercise, a virtual character has the following basic
-           attributes (you can extend in the future)
-           x.y ¡V current pposition
-           dir ¡V direction the virtual character is heading
-           speed ¡V the moving speed
-           You should create a sprite class and initialize its attributes like (x,y), dir, speed
-        */
+    private void initMyCharacter(int ID){
+        mainChar = new Character(0,0);
+        mainChar.setID(ID);
+    }
+
+    public void initAllCharacter(Gson otherCharacter){
+        /*Init all Character.
+          Extract Gson and translate it.
+        Call by TCP .*/
+
+       // Character otherChar = new Character();
+       // other.add(otherChar);
+       // mainChar.setID(ID);
+       // other.add(otherChar);
+    }
+
+    public Character getMyCharacter(){
+        return mainChar;
+    }
+
+    public Character updateMyPosition(){
+        Character me = new Character(mainChar.getX(),mainChar.getY());
+        me.setDirection(mainChar.getDirection());
+        me.setID(mainChar.getID());
+        return mainChar;
+    }
+
+    public void getOtherPosition(int clientno){
         Character otherChar = new Character(100*clientno, 100*clientno);
-        otherChar.setDirection(clientno*4);
-        characters[clientno] = otherChar;
+        other.add(otherChar);
     }
 
-    @Override
-    public void addItem(String name, int index, boolean shared,int x, int y){
-        /* called by UDPUS to create an shared item
-           An item is can be indexed by a name and an index.
-           if shared is true, the item can only be own by a client at any time
-           if shared is false, the item can be obtained by any client as if it can reappear
-           when it is obtained by a virtual character (¨Ò¦p«æ±Ï¥])
-           In this function, you should create a sprite class which contain
-           attributes like name, index, and shared
-        */
-        Ball ball = new Ball(name,index,shared,x,y);
-        object.add(ball);
-    }
-
-    @Override
-    public void updateVirtualCharacter(int clientno, int dir, int speed, int x, int y){
-        // called by UDPUS
-        // update the data of a virtual character
-        if(dir % 4 != 0 || dir < 0 || dir > 15){
-            throw new IllegalArgumentException();
-        }
-        characters[clientno].setDirection(dir);
-        characters[clientno].setSpeed(speed);
-        characters[clientno].setPosition(x, y);
-
-    }
-
-    @Override
-    public void updateItem(int index, boolean shared, int owner, int x, int y){
-        // called by UDPUS
-        // update the data of an item
-        for(int i = 1 ; i< object.size() ; i++){
-            Ball b =  (Ball) object.get(i);
-            if(b.getIndex() == index){
-                b.setShared(shared);
-                b.setOwner(owner);
-                b.setPosition(x,y);
+    public void downloadCharacter(Gson all){
+        /* called by UDP
+           get all character information from UDP*/
+       /* all.
+        for(int i = 0; i < other.size(); i++){
+            if(other.get(i).getID() == clientno){
+                other.get(i).setPosition(x,y);
+                other.get(i).setDirection(dir);
             }
-        }
-
+        }*/
     }
 
-    @Override
-    public Vector<Sprite> getAllDynamicObjects(){
-        // get all character object.
-        return object;
+    public ArrayList<Character> getOtherCharacter(){
+        /* call by ScenRenderEngine
+           get all character object.*/
+
+        return other;
     }
 
-    @Override
-    public Point getVirtualCharacterXY(){
-       /* called by Scene Render Engine
-          This function returns the coordinates of the virtual character
-          controlled by this client computer
-          The position (x,y) is the location on the map.
-          It is used to compute the view port and decide which part
-          of the map should be displayed in the view port
-       */
-        Point point  = new Point((int)characters[0].getX(), (int)characters[0].getY());
-        return point;
-    }
-
-    @Override
-    public void keyGETPressed(){
-        /* called by UIM
+    /*public void keyGETPressed(){
+         called by UIM
            When UIM accepts an keyboard input and it is a GET key
            it calls this method.
            This method should determine if the GET action is possible
@@ -141,8 +109,8 @@ public class DynamicObjectModule implements DOMinterface {
                 }
             }
         }
-*/
-    }
+
+    }*/
 
    /* private double calDistance(Position ball){
         Position mainChar = getMainCharCenterPoint();
