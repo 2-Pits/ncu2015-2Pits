@@ -19,17 +19,27 @@ public class Character{
     private double last_y;
     private boolean isMove;
     private int speed;
+    private int dt = 0;
+    private final int FRAME_TIME = 250;
 
     public Character(double x, double y){
-        setPosition(x, y);
         initChar();
+        setPosition(x, y);
+    }
+
+    public void update(int dt){
+        this.dt += dt;
+        while (this.dt >= FRAME_TIME){
+            incFrame();
+            this.dt -= FRAME_TIME;
+        }
     }
 
     private void initChar(){
         last_x = x;
         last_y = y;
         isMove = false;
-        loadImage("res/people.png");
+        loadImage("res/Man1.png");
         setDirection(0);
     }
 
@@ -38,6 +48,7 @@ public class Character{
         last_y = this.y;
         this.x = x;
         this.y = y;
+       // incFrame();
     }
 
     public double getX(){
@@ -81,7 +92,7 @@ public class Character{
         this.speed = speed;
     }
 
-    public void incFrame(){
+    private void incFrame(){
         if(checkMove())
             frame++;
         if(frame == images.length || frame % 4  == 0)

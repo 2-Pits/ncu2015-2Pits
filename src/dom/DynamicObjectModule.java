@@ -21,7 +21,7 @@ public class DynamicObjectModule {
         //this.tcp = tcp;
     }
 
-    private void initMyCharacter(int ID){
+    public void initMyCharacter(int ID){
         mainChar = new Character(0,0);
         mainChar.setID(ID);
     }
