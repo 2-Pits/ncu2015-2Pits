@@ -10,8 +10,8 @@ public class CentralizedDataCenter implements CentralizedDataCenterInterface {
     private Vector<Player> playerMap;
     private Vector<Ball> ballMap;
     public CentralizedDataCenter(){
-        playerMap = new Vector<>();
-        ballMap = new Vector<>();
+        playerMap = new Vector<Player>();
+        ballMap = new Vector<Ball>();
     }
     public Vector getPlayerMap(){
         return playerMap;
