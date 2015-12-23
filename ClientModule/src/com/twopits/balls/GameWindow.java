@@ -1,5 +1,8 @@
 package com.twopits.balls;
 
+import com.twopits.balls.libs.Constants;
+import com.twopits.balls.libs.Utils;
+
 import java.awt.Dimension;
 
 import javax.swing.JFrame;

@@ -1,6 +1,9 @@
 package com.twopits.balls;
 
+import com.twopits.balls.dom.DynamicObjectModule;
+
 import javax.swing.JFrame;
+import java.net.InetAddress;
 
 /**
  * Main class of Balls
@@ -24,15 +27,27 @@ public class App {
 	}
 
 	public App() {
-		SceneRenderEngine renderEngine = new SceneRenderEngine(this);
-		JFrame window = new GameWindow();
+        try {
 
-		window.add(renderEngine);
-		mKeyManager = new KeyManager();
-		window.addKeyListener(mKeyManager);
-		window.setVisible(true);
+            SceneRenderEngine renderEngine = new SceneRenderEngine(this);
+            JFrame window = new GameWindow();
 
-		mRenderThread = new RenderThread(renderEngine);
-		mRenderThread.startRenderThread();
+            window.add(renderEngine);
+            mKeyManager = new KeyManager();
+            window.addKeyListener(mKeyManager);
+            window.setVisible(true);
+
+            mRenderThread = new RenderThread(renderEngine);
+            mRenderThread.startRenderThread();
+
+            DynamicObjectModule DOM = new DynamicObjectModule();
+            Client client = new Client(DOM);
+            client.connectServer(InetAddress.getByName("127.0.0.1"));
+
+
+
+        }catch(Exception e){
+            e.printStackTrace();
+        }
 	}
 }

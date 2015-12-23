@@ -23,7 +23,7 @@ public class RoomSettingThread  extends Thread  { // Waiting for four Ch
         super.run();
         // noinspection InfiniteLoopStatement
         while (true) {
-            System.out.println(cdc.getPlayerMapCount());
+//            System.out.println(cdc.getPlayerMapCount());
             if (cdc.getPlayerMapCount() == 4) break;
         }
         try {
@@ -31,7 +31,7 @@ public class RoomSettingThread  extends Thread  { // Waiting for four Ch
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
-        System.out.println(cdc.getPlayerMapCount());
+//        System.out.println(cdc.getPlayerMapCount());
         udpbc.startUDPBroadCast();
         udpbc.runRecieveThread();
         udpbc.runSendThread();

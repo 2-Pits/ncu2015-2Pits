@@ -13,14 +13,22 @@ public class ServerMain {
         new ServerMain();
     }
     public ServerMain() {
-        JFrame window = new JFrame();
-        cdc=new CentralizedDataCenter();
-        udpbc=new UDPBC(cdc);
-        roomSettingThread=new RoomSettingThread(cdc,udpbc);
-        roomSettingThread.startRoomSettingThread();
-        cdc.addPlayer();
-        cdc.addPlayer();
-        cdc.addPlayer();
-        cdc.addPlayer();
+        try {
+
+            JFrame window = new JFrame();
+            cdc = new CentralizedDataCenter();
+            udpbc = new UDPBC(cdc);
+            roomSettingThread = new RoomSettingThread(cdc, udpbc);
+            roomSettingThread.startRoomSettingThread();
+
+            TCPServer tcpServer = new TCPServer(cdc);
+            tcpServer.initTCPServer();
+//        cdc.addPlayer();
+//        cdc.addPlayer();
+//        cdc.addPlayer();
+//        cdc.addPlayer();
+        }catch(Exception e){
+            e.printStackTrace();
+        }
     }
 }

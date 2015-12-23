@@ -65,7 +65,6 @@ public class TCPServer implements serverOperation{
                  * **/
                 Player player = cdcOperation.addPlayer();
 
-
                 // Print out and collect IP of this connection
                 String clientIP = clientSocket.getInetAddress().getHostName();
                 System.out.println("Accepted main.ClientModule.Client Address - " + clientIP);
@@ -77,8 +76,6 @@ public class TCPServer implements serverOperation{
                 fScheduler.execute(clientWorkerService);
 
             }
-
-
 
         }catch(Exception ee)
         {
@@ -165,6 +162,11 @@ public class TCPServer implements serverOperation{
             workerMsgQueue.add(msg);
         }
 
+        /**
+         * sendInitialData()
+         *
+         * Send initial data to remote client.
+         * **/
         private void sendInitialData(){
             String playerData = new Gson().toJson(player);
             System.out.println(playerData);
@@ -201,7 +203,6 @@ public class TCPServer implements serverOperation{
 
                 /**Give initial player data to remote**/
                 sendInitialData();
-
 
                 // Run in a loop until workerOn is set to false
                 while(workerOn){
