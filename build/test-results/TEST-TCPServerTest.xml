@@ -1,0 +1,120 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="TCPServerTest" tests="4" skipped="0" failures="1" errors="0" timestamp="2015-12-22T17:52:17" hostname="bighead-PC" time="8.124">
+  <properties/>
+  <testcase name="testUpdateGet" classname="TCPServerTest" time="2.09"/>
+  <testcase name="testGetClientIPTable" classname="TCPServerTest" time="2.842"/>
+  <testcase name="testUpdateDirection" classname="TCPServerTest" time="2.686">
+    <failure message="junit.framework.AssertionFailedError" type="junit.framework.AssertionFailedError">junit.framework.AssertionFailedError
+	at junit.framework.Assert.fail(Assert.java:55)
+	at junit.framework.Assert.assertTrue(Assert.java:22)
+	at junit.framework.Assert.assertTrue(Assert.java:31)
+	at junit.framework.TestCase.assertTrue(TestCase.java:201)
+	at TCPServerTest.testUpdateDirection(TCPServerTest.java:95)
+	at sun.reflect.NativeMethodAccessorImpl.invoke0(Native Method)
+	at sun.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:62)
+	at sun.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43)
+	at java.lang.reflect.Method.invoke(Method.java:497)
+	at junit.framework.TestCase.runTest(TestCase.java:176)
+	at junit.framework.TestCase.runBare(TestCase.java:141)
+	at junit.framework.TestResult$1.protect(TestResult.java:122)
+	at junit.framework.TestResult.runProtected(TestResult.java:142)
+	at junit.framework.TestResult.run(TestResult.java:125)
+	at junit.framework.TestCase.run(TestCase.java:129)
+	at junit.framework.TestSuite.runTest(TestSuite.java:255)
+	at junit.framework.TestSuite.run(TestSuite.java:250)
+	at org.junit.internal.runners.JUnit38ClassRunner.run(JUnit38ClassRunner.java:84)
+	at org.gradle.api.internal.tasks.testing.junit.JUnitTestClassExecuter.runTestClass(JUnitTestClassExecuter.java:86)
+	at org.gradle.api.internal.tasks.testing.junit.JUnitTestClassExecuter.execute(JUnitTestClassExecuter.java:49)
+	at org.gradle.api.internal.tasks.testing.junit.JUnitTestClassProcessor.processTestClass(JUnitTestClassProcessor.java:69)
+	at org.gradle.api.internal.tasks.testing.SuiteTestClassProcessor.processTestClass(SuiteTestClassProcessor.java:48)
+	at sun.reflect.NativeMethodAccessorImpl.invoke0(Native Method)
+	at sun.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:62)
+	at sun.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43)
+	at java.lang.reflect.Method.invoke(Method.java:497)
+	at org.gradle.messaging.dispatch.ReflectionDispatch.dispatch(ReflectionDispatch.java:35)
+	at org.gradle.messaging.dispatch.ReflectionDispatch.dispatch(ReflectionDispatch.java:24)
+	at org.gradle.messaging.dispatch.ContextClassLoaderDispatch.dispatch(ContextClassLoaderDispatch.java:32)
+	at org.gradle.messaging.dispatch.ProxyDispatchAdapter$DispatchingInvocationHandler.invoke(ProxyDispatchAdapter.java:93)
+	at com.sun.proxy.$Proxy2.processTestClass(Unknown Source)
+	at org.gradle.api.internal.tasks.testing.worker.TestWorker.processTestClass(TestWorker.java:105)
+	at sun.reflect.NativeMethodAccessorImpl.invoke0(Native Method)
+	at sun.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:62)
+	at sun.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43)
+	at java.lang.reflect.Method.invoke(Method.java:497)
+	at org.gradle.messaging.dispatch.ReflectionDispatch.dispatch(ReflectionDispatch.java:35)
+	at org.gradle.messaging.dispatch.ReflectionDispatch.dispatch(ReflectionDispatch.java:24)
+	at org.gradle.messaging.remote.internal.hub.MessageHub$Handler.run(MessageHub.java:355)
+	at org.gradle.internal.concurrent.DefaultExecutorFactory$StoppableExecutorImpl$1.run(DefaultExecutorFactory.java:64)
+	at java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1142)
+	at java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:617)
+	at java.lang.Thread.run(Thread.java:745)
+</failure>
+  </testcase>
+  <testcase name="testInitTCPServer" classname="TCPServerTest" time="0.505"/>
+  <system-out><![CDATA[Accepted ClientModule.Client Address - 127.0.0.1
+The command is : GET
+get something!
+...Stopped
+Server Stopped
+Could not create server. Quitting.
+Accepted ClientModule.Client Address - 127.0.0.1
+Accepted ClientModule.Client Address - 127.0.0.1
+Accepted ClientModule.Client Address - 127.0.0.1
+Accepted ClientModule.Client Address - 127.0.0.1
+Accepted ClientModule.Client Address - 127.0.0.1
+Accepted ClientModule.Client Address - 127.0.0.1
+Accepted ClientModule.Client Address - 127.0.0.1
+Accepted ClientModule.Client Address - 127.0.0.1
+Accepted ClientModule.Client Address - 127.0.0.1
+Accepted ClientModule.Client Address - 127.0.0.1
+...Stopped
+...Stopped
+...Stopped
+...Stopped
+...Stopped
+...Stopped
+...Stopped
+...Stopped
+...Stopped
+...Stopped
+Server Stopped
+Could not create server. Quitting.
+Accepted ClientModule.Client Address - 127.0.0.1
+...Stopped
+Server Stopped
+Could not create server. Quitting.
+Accepted ClientModule.Client Address - 127.0.0.1
+Server Stopped
+]]></system-out>
+  <system-err><![CDATA[java.net.SocketException: socket closed
+	at java.net.DualStackPlainSocketImpl.accept0(Native Method)
+	at java.net.DualStackPlainSocketImpl.socketAccept(DualStackPlainSocketImpl.java:131)
+	at java.net.AbstractPlainSocketImpl.accept(AbstractPlainSocketImpl.java:404)
+	at java.net.PlainSocketImpl.accept(PlainSocketImpl.java:199)
+	at java.net.ServerSocket.implAccept(ServerSocket.java:545)
+	at java.net.ServerSocket.accept(ServerSocket.java:513)
+	at ServerModule.TCPServer.initTCPServer(TCPServer.java:61)
+	at TCPServerTest$1.run(TCPServerTest.java:40)
+	at java.lang.Thread.run(Thread.java:745)
+java.net.SocketException: socket closed
+	at java.net.DualStackPlainSocketImpl.accept0(Native Method)
+	at java.net.DualStackPlainSocketImpl.socketAccept(DualStackPlainSocketImpl.java:131)
+	at java.net.AbstractPlainSocketImpl.accept(AbstractPlainSocketImpl.java:404)
+	at java.net.PlainSocketImpl.accept(PlainSocketImpl.java:199)
+	at java.net.ServerSocket.implAccept(ServerSocket.java:545)
+	at java.net.ServerSocket.accept(ServerSocket.java:513)
+	at ServerModule.TCPServer.initTCPServer(TCPServer.java:61)
+	at TCPServerTest$1.run(TCPServerTest.java:40)
+	at java.lang.Thread.run(Thread.java:745)
+java.net.SocketException: socket closed
+	at java.net.DualStackPlainSocketImpl.accept0(Native Method)
+	at java.net.DualStackPlainSocketImpl.socketAccept(DualStackPlainSocketImpl.java:131)
+	at java.net.AbstractPlainSocketImpl.accept(AbstractPlainSocketImpl.java:404)
+	at java.net.PlainSocketImpl.accept(PlainSocketImpl.java:199)
+	at java.net.ServerSocket.implAccept(ServerSocket.java:545)
+	at java.net.ServerSocket.accept(ServerSocket.java:513)
+	at ServerModule.TCPServer.initTCPServer(TCPServer.java:61)
+	at TCPServerTest$1.run(TCPServerTest.java:40)
+	at java.lang.Thread.run(Thread.java:745)
+]]></system-err>
+</testsuite>
