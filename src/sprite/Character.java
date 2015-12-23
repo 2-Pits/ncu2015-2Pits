@@ -22,7 +22,8 @@ public class Character{
     private int dt = 0;
     private final int FRAME_TIME = 250;
 
-    public Character(double x, double y){
+    public Character(int id, double x, double y){
+        setID(id);
         initChar();
         setPosition(x, y);
     }

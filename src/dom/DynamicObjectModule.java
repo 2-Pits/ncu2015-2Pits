@@ -1,10 +1,14 @@
 package dom;
 
 import com.google.gson.Gson;
-import jdk.nashorn.api.scripting.JSObject;
+import com.google.gson.reflect.TypeToken;
+import com.twopits.balls.libs.OneGamer;
 import sprite.Character;
-import java.awt.*;
+import java.lang.reflect.Type;
 import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
+import java.util.Vector;
 
 
 /**
@@ -12,7 +16,7 @@ import java.util.ArrayList;
  */
 public class DynamicObjectModule {
 
-    private Character mainChar;
+    private Character myChar;
     private ArrayList<Character> other;
     //private TCPCM tcp;
 
@@ -21,48 +25,55 @@ public class DynamicObjectModule {
         //this.tcp = tcp;
     }
 
-    public void initMyCharacter(int ID){
-        mainChar = new Character(0,0);
-        mainChar.setID(ID);
+    public void initMyCharacter(int ID,double x, double y){
+        myChar = new Character(ID,x,y);
+        initAllCharacter(4);
     }
 
-    public void initAllCharacter(Gson otherCharacter){
-        /*Init all Character.
-          Extract Gson and translate it.
-        Call by TCP .*/
-
-       // Character otherChar = new Character();
-       // other.add(otherChar);
-       // mainChar.setID(ID);
-       // other.add(otherChar);
+    private void initAllCharacter(int clientNum){
+        for(int i = 0; i < clientNum; i++){
+            if(i != myChar.getID()){
+                Character tempC = new Character(i,0,0);
+                other.add(tempC);
+            }
+        }
     }
 
     public Character getMyCharacter(){
-        return mainChar;
+        return myChar;
     }
 
     public Character updateMyPosition(){
-        Character me = new Character(mainChar.getX(),mainChar.getY());
-        me.setDirection(mainChar.getDirection());
-        me.setID(mainChar.getID());
-        return mainChar;
+        Character me = new Character(myChar.getID(),myChar.getX(),myChar.getY());
+        me.setDirection(myChar.getDirection());
+        me.setID(myChar.getID());
+        return myChar;
     }
 
     public void getOtherPosition(int clientno){
-        Character otherChar = new Character(100*clientno, 100*clientno);
+        Character otherChar = new Character(clientno,100*clientno, 100*clientno);
         other.add(otherChar);
     }
 
-    public void downloadCharacter(Gson all){
+    public void downloadCharacter(String UDPgson){
         /* called by UDP
            get all character information from UDP*/
-       /* all.
+        Gson gson = new Gson();
+        String[] gsons = UDPgson.split(";");
+        OneGamer[] gamers = new OneGamer[gsons.length];
+        for(int i = 0; i < gsons.length; i++){
+            gamers[i] = gson.fromJson(gsons[i], OneGamer.class);
+        }
         for(int i = 0; i < other.size(); i++){
-            if(other.get(i).getID() == clientno){
-                other.get(i).setPosition(x,y);
-                other.get(i).setDirection(dir);
-            }
-        }*/
+            other.get(i).setPosition(gamers[other.get(i).getID()].getX(),gamers[other.get(i).getID()].getY());
+        }
+
+        for(int i=0; i < other.size();i++){
+            System.out.println("ID: " + other.get(i).getID());
+            System.out.println("x: " + other.get(i).getX());
+            System.out.println("y: " + other.get(i).getY());
+            System.out.println("dir: " + other.get(i).getDirection());
+        }
     }
 
     public ArrayList<Character> getOtherCharacter(){
