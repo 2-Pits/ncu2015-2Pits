@@ -10,10 +10,16 @@ import javax.swing.JFrame;
  */
 public class App {
 
+	public SceneRenderEngine getSceneRenderEngine() {
+		return mRenderEngine;
+	}
+
+	private SceneRenderEngine mRenderEngine;
 	private RenderThread mRenderThread;
 	private KeyManager mKeyManager;
-	private UDPUS mudpus;
-	private DynamicObjectModule dom;
+	private UDPUS mUdpus;
+	private DynamicObjectModule mDom;
+	private TCPCM mTcpcm;
 
 	public RenderThread getRenderThread() {
 		return mRenderThread;
@@ -24,7 +30,7 @@ public class App {
 	}
 
 	public DynamicObjectModule getDynamicObjectModule() {
-		return dom;
+		return mDom;
 	}
 
 	public static void main(String[] args) {
@@ -32,22 +38,29 @@ public class App {
 	}
 
 	public App() {
-		dom = new DynamicObjectModule();
-		dom.initMyCharacter(1,2,3);
-		SceneRenderEngine renderEngine = new SceneRenderEngine(this);
+		mDom = new DynamicObjectModule();
+
+
+
+		mRenderEngine = new SceneRenderEngine(this);
 		JFrame window = new GameWindow();
 
-		window.add(renderEngine);
+		mTcpcm = new TCPCM(this,mDom);
+		mTcpcm.buildConnection();
+
+		window.add(mRenderEngine);
 		mKeyManager = new KeyManager();
 		window.addKeyListener(mKeyManager);
 		window.setVisible(true);
 
-		mRenderThread = new RenderThread(renderEngine);
+		mRenderThread = new RenderThread(mRenderEngine);
 		mRenderThread.startRenderThread();
 
-		mudpus = new UDPUS(dom);
-		mudpus.iniUDPServer();
-		mudpus.runReciveThread();
-		mudpus.runSendThread();
+
+
+		mUdpus = new UDPUS(mDom);
+		mUdpus.iniUDPServer();
+		mUdpus.runReciveThread();
+		mUdpus.runSendThread();
 	}
 }
