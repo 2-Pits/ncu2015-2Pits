@@ -1,4 +1,4 @@
-package com.twopits.balls;
+package com.twopits.balls.libs;
 
 /**
  * Constants such as app configurations
