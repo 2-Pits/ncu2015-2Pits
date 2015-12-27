@@ -150,12 +150,9 @@ public class SceneRenderEngine extends JPanel {
 				validLeftAfter && validRightAfter && validTopAfter && validBottomAfter;
 		if (isInsideRoom) {
 			IntegerPosition playerBlock = getPlayerCurrentBlock();
-			BallModel playerBlockBall = FakeData.getBallsMap()[playerBlock.x][playerBlock.y];
-			boolean isTouchingBall = playerBlockBall != null &&
-					playerBlockBall.ballType != BallModel.BallType.NONE &&
-					Math.pow(playerOffsetXAfter - BLOCK_SIZE / 2f, 2) +
-							Math.pow(playerOffsetYAfter - BLOCK_SIZE / 2f, 2) <
-							Math.pow(BALL_RADIUS + PLAYER_SIZE / 2f, 2f);
+			boolean isTouchingBall = Math.pow(playerOffsetXAfter - BLOCK_SIZE / 2f, 2) +
+					Math.pow(playerOffsetYAfter - BLOCK_SIZE / 2f, 2) <
+					Math.pow(BALL_RADIUS + PLAYER_SIZE / 2f, 2f);
 
 			if (isTouchingBall) {
 				return;
@@ -262,6 +259,14 @@ public class SceneRenderEngine extends JPanel {
 						g2d.fillOval(drawPositionX + roomRadius + (int) (ballRadius * .2f),
 								drawPositionY + roomRadius - (int) (ballRadius * .6f),
 								(int) (ballRadius * .4f), (int) (ballRadius * .4f));
+					} else {
+						g2d.setColor(Color.BLACK);
+						g2d.setStroke(new BasicStroke(2 * zoom, BasicStroke.CAP_BUTT,
+								BasicStroke.JOIN_ROUND, 2 * zoom, new float[]{2f * zoom},
+								2 * zoom));
+						g2d.drawOval(drawPositionX + roomRadius - ballRadius,
+								drawPositionY + roomRadius - ballRadius, 2 * ballRadius,
+								2 * ballRadius);
 					}
 				}
 			}
