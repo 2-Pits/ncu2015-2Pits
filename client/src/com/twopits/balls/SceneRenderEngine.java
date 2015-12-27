@@ -8,17 +8,12 @@ import dom.DynamicObjectModule;
 import sprite.*;
 import sprite.Character;
 
-import java.awt.BasicStroke;
-import java.awt.Color;
-import java.awt.Font;
-import java.awt.Graphics;
-import java.awt.Graphics2D;
-import java.awt.Image;
-import java.awt.RenderingHints;
-import java.awt.Toolkit;
+import java.awt.*;
 import java.awt.event.KeyEvent;
 import java.io.File;
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
 
 import javax.swing.JPanel;
 
@@ -44,6 +39,7 @@ public class SceneRenderEngine extends JPanel {
     // Initial player at the 1/4 of (0,0)
     private double mPlayerX = BLOCK_SIZE / 4, mPlayerY = BLOCK_SIZE / 4;
 
+    private static final int BUTTON_SIZE = BLOCK_SIZE/4;
 
     private enum BasicBlock {
         DARK, LIGHT
@@ -52,6 +48,7 @@ public class SceneRenderEngine extends JPanel {
     private App mApp;
     private Font mGameFont;
     private Image[] mBlockImages;
+    private Map<Integer, ItemRectangle> mRetangleMap ;
 
     private DynamicObjectModule dom;
     private Character myCharacter;
@@ -64,6 +61,7 @@ public class SceneRenderEngine extends JPanel {
 
     private void initValues() {
         mBlockImages = initBlockResources();
+        mRetangleMap = createRectangles();
 
         //TODO Remove fake data
         FakeData.initBallsMap(MAP_WIDTH, MAP_HEIGHT);
@@ -78,6 +76,19 @@ public class SceneRenderEngine extends JPanel {
         dom = mApp.getDynamicObjectModule();
         myCharacter = dom.getMyCharacter();
         otherCharacters = dom.getOtherCharacter();
+    }
+
+    private Map<Integer, ItemRectangle> createRectangles() {
+        String []names= {"Q","W","E","R"};
+        int []codes= {KeyEvent.VK_Q,KeyEvent.VK_W,KeyEvent.VK_E,KeyEvent.VK_R};
+
+        Map<Integer, ItemRectangle> retangles= new HashMap<>();
+        for(int i=0;i<4;i++){
+            Rectangle rectangle = new Rectangle();
+            retangles.put(codes[i], new ItemRectangle(rectangle, names[i],i));
+        }
+
+        return retangles;
     }
 
     private Image[] initBlockResources() {
@@ -100,8 +111,20 @@ public class SceneRenderEngine extends JPanel {
 
     public void update(long dt) {
         updatePlayerPosition(dt);
+        updateItemRenctangle();
         myCharacter.update((int) dt);
         repaint();
+    }
+
+    private void updateItemRenctangle() {
+        KeyManager keyManager = mApp.getKeyManager();
+        int []codes= {KeyEvent.VK_Q,KeyEvent.VK_W,KeyEvent.VK_E,KeyEvent.VK_R};
+
+        //  effect of feedback
+        for(int code : codes){
+            boolean isPressed = keyManager.isKeyPressed(code);
+            mRetangleMap.get(code).setPressed(isPressed);
+        }
     }
 
     private void updatePlayerPosition(long dt) {
@@ -223,6 +246,29 @@ public class SceneRenderEngine extends JPanel {
         g2d.setFont(mGameFont.deriveFont(10 * zoom));
 
         drawMap(g2d, zoom);
+        drawItemRectangle(g2d, zoom);
+    }
+
+    private void drawItemRectangle(Graphics2D g2d, float zoom) {
+
+        int rectangleSize = (int)(BUTTON_SIZE * zoom);
+        int blockSize = (int)(BLOCK_SIZE * zoom);
+        int drawRectanglePositionX = (int)(10 * zoom + blockSize * 2);
+        int drawRectanglePositionY = this.getHeight() - rectangleSize - (int) (10 * zoom);
+        int padding =(int) (5 * zoom);
+
+        //PADDING * (i+1) + i*100+150, PADDING, BUTTON_WIDTH, BUTTON_HEIGHT
+        // Travel the shapMap
+        for (ItemRectangle item : mRetangleMap.values()) {
+            Rectangle rectangle = item.getRectangle();
+
+            double posX = padding * item.getIndex() + item.getIndex() * rectangleSize + drawRectanglePositionX;
+            rectangle.setRect(posX,drawRectanglePositionY,rectangleSize,rectangleSize);
+            g2d.setColor(item.getColor());
+            g2d.fill(item.getRectangle());
+            g2d.setColor(Color.black);
+            g2d.drawString(item.getShapeName(),(float)posX,drawRectanglePositionY +rectangleSize);
+        }
     }
 
     @SuppressWarnings("SuspiciousNameCombination")
@@ -392,4 +438,44 @@ public class SceneRenderEngine extends JPanel {
         int playerBlockY = Math.floorDiv(playerY, BLOCK_SIZE);
         return new IntegerPosition(playerBlockX, playerBlockY);
     }
+
+    class ItemRectangle {
+
+        private final Color DEFAULT_COLOR = Color.decode( "#448AFF");
+        private final Color PRESSED_COLOR = Color.decode( "#2962FF");
+        private Color color;
+        private Rectangle rectangle;
+        private String shapeName;
+        private int index;
+
+        public ItemRectangle(Rectangle rectangle,String shapeName,int index) {
+            this.rectangle = rectangle;
+            this.color = DEFAULT_COLOR;
+            this.shapeName = shapeName;
+            this.index = index;
+        }
+
+        public void  setPressed(boolean pressed)
+        {
+            color = pressed ? PRESSED_COLOR : DEFAULT_COLOR;
+        }
+
+        public int getIndex() {
+            return index;
+        }
+
+        public Color getColor() {
+            return color;
+        }
+
+        public Rectangle getRectangle() {
+            return rectangle;
+        }
+
+        public String getShapeName(){
+            return shapeName;
+        }
+
+    }
+
 }
