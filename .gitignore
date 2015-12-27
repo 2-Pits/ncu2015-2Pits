@@ -1,4 +1,6 @@
 *.iml
+.idea
+out
 client/.idea
 
 # Java class files
