@@ -91,7 +91,7 @@ public class DynamicObjectModule {
            When UIM accepts an keyboard input and it is a GET key
            it calls this method.
            This method should determine if the GET action is possible
-           by comparing the virtual character¡¦s position and any
+           by comparing the virtual characterï¿½ï¿½s position and any
            item nearby. If the GET action is possible, it should call
            inputMoves(GET) of TCPCM
         */

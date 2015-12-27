@@ -46,6 +46,13 @@ public class RoomSettingThread  extends Thread  { // Waiting for four Ch
         System.out.println("TCPCon Thread");
 
         while (true) {
+            for(int i=0;i<osvector.size();i++) {
+                try {
+                    osvector.elementAt(i).write(osvector.size());
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
             Socket sc = null;                // 接收輸入訊息。
             try {
                 sc = ss.accept();
@@ -78,10 +85,12 @@ public class RoomSettingThread  extends Thread  { // Waiting for four Ch
         udpbc.startUDPBroadCast();
         udpbc.runSendThread();
         udpbc.runRecieveThread();
-        try {
-            Thread.sleep(5000);
-        } catch (InterruptedException e) {
-            e.printStackTrace();
+        for(int i=0;i<osvector.size();i++) {
+            try {
+                osvector.elementAt(i).write(4);
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
         }
     }
 }
