@@ -20,13 +20,12 @@ public class ServerMain {
             udpbc = new UDPBC(cdc);
             roomSettingThread = new RoomSettingThread(cdc, udpbc);
             roomSettingThread.startRoomSettingThread();
-
-       //     TCPServer tcpServer = new TCPServer(cdc);
+       //     TCPBall tcpServer = new TCPBall(cdc);
        //     tcpServer.initTCPServer();
-        cdc.addPlayer();
-        cdc.addPlayer();
-        cdc.addPlayer();
-        cdc.addPlayer();
+        //    cdc.addPlayer();
+        //    cdc.addPlayer();
+        //    cdc.addPlayer();
+         //   cdc.addPlayer();
         }catch(Exception e){
             e.printStackTrace();
         }

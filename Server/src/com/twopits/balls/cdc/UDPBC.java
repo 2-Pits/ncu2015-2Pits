@@ -107,16 +107,13 @@ public class UDPBC {
 
                     Player gamer = new Gson().fromJson(s, Player.class);
 
-                    my_ID = gamer.getClientno();
+                    my_ID = gamer.getID();
                     myDiration = gamer.getDir();
                     myPosition_X = gamer.getX();
                     myPosition_Y = gamer.getY();
                     cdc.updateCharacterStatus(my_ID, myPosition_X, myPosition_Y, myDiration);
 
-                    Thread.sleep(200);
                 } catch (IOException e) {
-                    e.printStackTrace();
-                } catch (InterruptedException e) {
                     e.printStackTrace();
                 }
             }
@@ -141,11 +138,8 @@ public class UDPBC {
                 try {
                     sendMultiSocket.send(sendMultiPacket);
                     for(Player each : allPlayerMap){
-                        System.out.println(each.getClientno()+"("+each.getX()+","+each.getY()+")"+" dir:"+each.getDir());
+                        System.out.println(each.getID()+"("+each.getX()+","+each.getY()+")"+" dir:"+each.getDir());
                     }
-                    Thread.sleep(200);
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
                 } catch (IOException e) {
                     e.printStackTrace();
                 }

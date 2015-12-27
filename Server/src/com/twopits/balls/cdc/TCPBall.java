@@ -8,7 +8,7 @@ import java.util.*;
 import java.util.concurrent.*;
 
 
-public class TCPServer implements serverOperation{
+public class TCPBall implements serverOperation{
 
     private static ScheduledExecutorService fScheduler = null;
     private static final int NUM_THREADS = 4;
@@ -25,11 +25,11 @@ public class TCPServer implements serverOperation{
     }
 
     /**
-     * TCPServer constructor
+     * TCPBall constructor
      *
      * @param cdcOperation  The interface of CDC
      * **/
-    public TCPServer(CentralizedDataCenterInterface cdcOperation) throws Exception{
+    public TCPBall(CentralizedDataCenterInterface cdcOperation) throws Exception{
         this.cdcOperation = cdcOperation;
         memberList = new ArrayList<ClientService>();    //Collect client's socket
         clientIPTable = new ArrayList<String>();    //Collect client's IP
@@ -148,7 +148,7 @@ public class TCPServer implements serverOperation{
             in = new BufferedReader(new InputStreamReader(myClientSocket.getInputStream()));
             out = new PrintWriter(new OutputStreamWriter(myClientSocket.getOutputStream()));
             workerMsgQueue = Collections.synchronizedList(new LinkedList<String>());
-            clientID = player.getClientno();
+            clientID = player.getID();
         }
 
         /**
@@ -330,7 +330,7 @@ public class TCPServer implements serverOperation{
     }
 
 //    public static void main(String[] args) throws Exception {
-//        main.ServerModule.TCPServer server = new main.ServerModule.TCPServer(11111);
+//        main.ServerModule.TCPBall server = new main.ServerModule.TCPBall(11111);
 //        server.initTCPServer();
 //    }
 
