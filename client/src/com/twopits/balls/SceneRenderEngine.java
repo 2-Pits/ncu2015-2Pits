@@ -243,6 +243,7 @@ public class SceneRenderEngine extends JPanel {
         BallModel[][] balls = FakeData.getBallsMap();
         int ballRadius = (int) (BALL_RADIUS * zoom);
         int roomRadius = (int) (BLOCK_SIZE * zoom / 2f);
+        int playerRadius = (int) (PLAYER_SIZE / 2 * zoom);
 
         for (int screenBlockX = 0; screenBlockX < visibleBlockW; screenBlockX++) {
             for (int screenBlockY = 0; screenBlockY < visibleBlockH; screenBlockY++) {
@@ -265,7 +266,7 @@ public class SceneRenderEngine extends JPanel {
                                 Math.floorMod(mapBlockY, MAP_HEIGHT)), drawPositionX + (10 * zoom),
                         drawPositionY + (20 * zoom));
 
-                // Draw ball
+                // Draw ball & other players
                 if (isPlayerInBlock) {
                     BallModel ballInRoom = balls[mapBlockX][mapBlockY];
                     if (ballInRoom != null && ballInRoom.ballType != BallModel.BallType.NONE) {
@@ -283,23 +284,28 @@ public class SceneRenderEngine extends JPanel {
                                 drawPositionY + roomRadius - (int) (ballRadius * .6f),
                                 (int) (ballRadius * .4f), (int) (ballRadius * .4f));
                     }
+
+                    // Draw other players
+                    for(int i = 0; i < otherCharacters.size(); i++){
+                        Character temPlayer = otherCharacters.get(i);
+                        boolean isTempInBlock = isPlayerInBlock((int)temPlayer.getX(),(int)temPlayer.getY(),mapBlockX, mapBlockY);
+                        if(isTempInBlock){
+                            int offsetX = (int)(temPlayer.getX() % 100 * zoom) - playerRadius;
+                            int offsetY = (int)(temPlayer.getY() % 100 * zoom) - playerRadius;
+                            System.out.println();
+                            g2d.drawImage(temPlayer.getImage(), drawPositionX + offsetX, drawPositionY + offsetY, 2 * playerRadius,
+                                    2 * playerRadius, null );
+                        }
+                    }
                 }
             }
         }
 
         // TODO Draw players
-        int fakePlayerRadius = (int) (PLAYER_SIZE / 2 * zoom);
-        g2d.drawImage(myCharacter.getImage(), this.getWidth() / 2 - fakePlayerRadius,
-                this.getHeight() / 2 - fakePlayerRadius, 2 * fakePlayerRadius,
-                2 * fakePlayerRadius, null);
-        for (int i = 0; i < otherCharacters.size(); i++) {
-            Character temp = otherCharacters.get(i);
-            g2d.drawImage(temp.getImage(), (int) temp.getX(), (int) temp.getY(), 2 * fakePlayerRadius,
-                    2 * fakePlayerRadius, null);
-        }
-        /*g2d.drawRect(this.getWidth() / 2 - fakePlayerRadius,
-                this.getHeight() / 2 - fakePlayerRadius, 2 * fakePlayerRadius,
-				2 * fakePlayerRadius);*/
+
+        g2d.drawImage(myCharacter.getImage(), this.getWidth() / 2 - playerRadius,
+                this.getHeight() / 2 - playerRadius, 2 * playerRadius,
+                2 * playerRadius, null);
 
         boolean DEBUG = true;
         boolean DEBUG_PLAYER = true;
