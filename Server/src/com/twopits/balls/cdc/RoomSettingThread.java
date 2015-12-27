@@ -5,6 +5,7 @@ import com.google.gson.Gson;
 
 import java.io.IOException;
 import java.io.OutputStream;
+import java.net.InetAddress;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.nio.charset.StandardCharsets;
@@ -16,13 +17,15 @@ import java.util.Vector;
 public class RoomSettingThread  extends Thread  { // Waiting for four Ch
     long mSleepDuration;
     public static int port = 5278; // 連接埠
-    Vector<OutputStream> osvector;
+    Vector<InetAddress> ipvector;
+    Vector<Socket> skvector;
     CentralizedDataCenter cdc;
     UDPBC udpbc;
     public RoomSettingThread(CentralizedDataCenter cdc,UDPBC udpbc){
         this.cdc=cdc;
         this.udpbc = udpbc;
-        osvector=new Vector<>();
+        ipvector=new Vector<InetAddress>();
+        skvector=new  Vector<Socket>();
     }
     public long getCurrentSleepDuration() {
         return mSleepDuration;
@@ -46,9 +49,11 @@ public class RoomSettingThread  extends Thread  { // Waiting for four Ch
         System.out.println("TCPCon Thread");
 
         while (true) {
-            for(int i=0;i<osvector.size();i++) {
+            System.out.println(skvector.size());
+            for(int i=0;i<skvector.size();i++) {
+                System.out.println(skvector.elementAt(i).getInetAddress());
                 try {
-                    osvector.elementAt(i).write(osvector.size());
+                    skvector.elementAt(i).getOutputStream().write(skvector.size());
                 } catch (IOException e) {
                     e.printStackTrace();
                 }
@@ -56,6 +61,8 @@ public class RoomSettingThread  extends Thread  { // Waiting for four Ch
             Socket sc = null;                // 接收輸入訊息。
             try {
                 sc = ss.accept();
+                ipvector.add(sc.getInetAddress());
+                skvector.add(sc);
             } catch (IOException e) {
                 e.printStackTrace();
             }
@@ -66,15 +73,19 @@ public class RoomSettingThread  extends Thread  { // Waiting for four Ch
             } catch (IOException e) {
                 e.printStackTrace();
             }
-            osvector.add(os);
             String s="";
             s = new Gson().toJson(cdc.addPlayer());
             byte[] bytes = s.getBytes(StandardCharsets.UTF_8);
             System.out.println(s);
             try {
                 os.write(bytes);// 送訊息到 Client 端。
-                os.close();                                // 關閉輸出串流。
-                sc.close();                                // 關閉 TCP 伺服器。
+                os.flush();
+                os.write('\n');// 送訊息到 Client 端。
+                os.flush();
+                s = new Gson().toJson(cdc.getBallMap());
+                bytes = s.getBytes(StandardCharsets.UTF_8);
+                os.write(bytes);// 送訊息到 Client 端。
+                os.write('\n');// 送訊息到 Client 端。
 
             } catch (IOException e) {
                 e.printStackTrace();
@@ -85,9 +96,9 @@ public class RoomSettingThread  extends Thread  { // Waiting for four Ch
         udpbc.startUDPBroadCast();
         udpbc.runSendThread();
         udpbc.runRecieveThread();
-        for(int i=0;i<osvector.size();i++) {
+        for(int i=0;i<skvector.size();i++) {
             try {
-                osvector.elementAt(i).write(4);
+                skvector.elementAt(i).getOutputStream().write(skvector.size());
             } catch (IOException e) {
                 e.printStackTrace();
             }

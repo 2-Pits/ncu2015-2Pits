@@ -9,10 +9,10 @@ import java.util.Vector;
 public class CentralizedDataCenter implements CentralizedDataCenterInterface {
 
     private Vector<Player> playerMap;
-    private Vector<Ball> ballMap;
+    private BallMap ballMap;
     public CentralizedDataCenter(){
         playerMap = new Vector<Player>();
-        ballMap = new Vector<Ball>();
+        ballMap = new BallMap();
     }
     public Vector getPlayerMap(){
         return playerMap;
@@ -20,7 +20,11 @@ public class CentralizedDataCenter implements CentralizedDataCenterInterface {
     public int getPlayerMapCount(){
         return playerMap.size();
     }
-
+    private void randomBall(){
+    }
+    public BallMap getBallMap(){
+        return ballMap;
+    }
     public Player addPlayer() {
         if(getPlayerMapCount()==4){
             return null;
@@ -56,21 +60,4 @@ public class CentralizedDataCenter implements CentralizedDataCenterInterface {
         return null;
     }
 
-    boolean addBall(int color,int index,int x,int y) {
-        Ball ball = new Ball(color,index,x,y);
-        ballMap.add(ball);
-        return true;
-    }
-    Ball findBall(int index){
-        for(int i=0;i<ballMap.size();i++){
-            if(ballMap.elementAt(i).getIndex()==index) {
-                return ballMap.elementAt(i);
-            }
-        }
-        return null;
-    }
-
-    void startUpdatingThread() throws InterruptedException {
-
-    }
 }
