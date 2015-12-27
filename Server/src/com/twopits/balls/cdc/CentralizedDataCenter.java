@@ -59,5 +59,4 @@ public class CentralizedDataCenter implements CentralizedDataCenterInterface {
     void startUpdatingThread() throws InterruptedException {
 
     }
-
 }

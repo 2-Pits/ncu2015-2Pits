@@ -4,6 +4,7 @@ import com.google.gson.Gson;
 import java.io.IOException;
 import java.net.*;
 import java.nio.charset.StandardCharsets;
+import java.util.Arrays;
 import java.util.Vector;
 
 /**
@@ -126,6 +127,7 @@ public class UDPBC {
         @Override
         public void run() {
             while (true) {
+                Arrays.fill(sendByteArr,(byte)0);
                 allPlayerMap =cdc.getPlayerMap();
                 String s="";
                 for(int i=0;i<allPlayerMap.size();i++) {
@@ -135,8 +137,6 @@ public class UDPBC {
                 for(int i=0;i<bytes.length;i++){
                     sendByteArr[i] = bytes[i];
                 }
-                System.out.println(s);
-                System.out.println(bytes.length);
 
                 try {
                     sendMultiSocket.send(sendMultiPacket);

@@ -6,20 +6,20 @@ package com.twopits.balls.cdc;
  */
 public class Player {
 
-    private int clientno;
+    private int ID;
     private double x, y;
     private int dir;
-    public Player(int clientno, double x, double y, int dir) {
-        this.clientno=clientno;
+    public Player(int ID, double x, double y, int dir) {
+        this.ID=ID;
         this.x=x;
         this.y=y;
         this.dir=dir;
     }
-    public void setClientno(int clientno){
-        this.clientno=clientno;
+    public void setClientno(int ID){
+        this.ID=ID;
     }
     public int getClientno(){
-        return this.clientno;
+        return this.ID;
     }
     public void updateInfo(double x,double y, int dir){
         this.x=x;
