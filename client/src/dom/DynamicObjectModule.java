@@ -81,46 +81,7 @@ public class DynamicObjectModule implements DOMInterface{
 
         return other;
     }
-
-<<<<<<< HEAD
-    /*public void keyGETPressed(){
-         called by UIM
-           When UIM accepts an keyboard input and it is a GET key
-           it calls this method.
-           This method should determine if the GET action is possible
-           by comparing the virtual character��s position and any
-           item nearby. If the GET action is possible, it should call
-           inputMoves(GET) of TCPCM
-        */
-        /*int GET = 0;
-        Position charPosi = getMainCharCenterPoint();
-        for(int i = 1; i < object.size(); i++){
-            Ball ball = (Ball) object.get(i);
-            if(charPosi.getX() > ball.getX() && charPosi.getX() < (ball.getX() + ball.getWidth()) ){
-                if(characters[0].getDirection() == 0){  //DOWN
-                    if(characters[0].getY() < ball.getY() && (characters[0].getY() + characters[0].getHeight()) >= ball.getY()){
-                       // tcp.inputMoves(GET);
-                    }
-                }if(characters[0].getDirection() == 12){  //UP
-                    if(characters[0].getY() > ball.getY() && (characters[0].getY() <= (ball.getY() + ball.getHeight()))){
-                        // tcp.inputMoves(GET);
-                    }
-                }
-
-            }else if(charPosi.getY() > ball.getY() && charPosi.getY() < (ball.getY() + ball.getHeight())){
-                if(characters[0].getDirection() == 4){  //LEFT
-                    if(characters[0].getX() > ball.getX() && (characters[0].getX() <= (ball.getX() + ball.getWidth()))){
-                       // tcp.inputMoves(GET);
-                    }
-                }if(characters[0].getDirection() == 8){  //RIGHT
-                    if(characters[0].getX() < ball.getX() && (characters[0].getX() + characters[0].getWidth()) >= ball.getX()){
-                        // tcp.inputMoves(GET);
-                    }
-
-                }
-            }
-        }
-=======
+    
     @Override
     public void updateBall(String gsonBall) {
 
@@ -135,7 +96,6 @@ public class DynamicObjectModule implements DOMInterface{
     public ArrayList getQWERState() {
         return null;
     }
->>>>>>> origin/master
 
     @Override
     public void startGame() {
