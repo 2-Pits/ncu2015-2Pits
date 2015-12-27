@@ -24,8 +24,8 @@ public class SceneRenderEngine extends JPanel {
 
     // Scene configurations
     private static final int PLAYER_SPEED = 150;
-    private static final float MAX_VISIBLE_BLOCKS_IN_HEIGHT = 3.0f;
-    private static final float MAX_VISIBLE_BLOCKS_IN_WIDTH = 5.0f;
+    private static final float MAX_VISIBLE_BLOCKS_IN_HEIGHT = 2.5f;
+    private static final float MAX_VISIBLE_BLOCKS_IN_WIDTH = 3.5f;
 
     private static final float WALL_THICKNESS = 5f;
     private static final float PLAYER_SIZE = 12f;
@@ -51,7 +51,6 @@ public class SceneRenderEngine extends JPanel {
 
     private DynamicObjectModule dom;
     private Character myCharacter;
-    private ArrayList<Character> otherCharacters;
 
     public SceneRenderEngine(App app) {
         mApp = app;
@@ -60,6 +59,7 @@ public class SceneRenderEngine extends JPanel {
 
     /**
      * Set local player position
+     *
      * @param x The x coordinate of player
      * @param y The x coordinate of player
      */
@@ -85,7 +85,6 @@ public class SceneRenderEngine extends JPanel {
 
         dom = mApp.getDynamicObjectModule();
         myCharacter = dom.getMyCharacter();
-        otherCharacters = dom.getOtherCharacter();
     }
 
     private Map<Integer, ItemRectangle> createRectangles() {
@@ -255,7 +254,7 @@ public class SceneRenderEngine extends JPanel {
 
         Graphics2D g2d = (Graphics2D) g;
         float zoom = getZoomFactor();
-        g2d.setFont(mGameFont.deriveFont(10 * zoom));
+        g2d.setFont(mGameFont.deriveFont(5 * zoom));
 
         drawMap(g2d, zoom);
         drawItemRectangle(g2d, zoom);
@@ -264,10 +263,9 @@ public class SceneRenderEngine extends JPanel {
     private void drawItemRectangle(Graphics2D g2d, float zoom) {
 
         int rectangleSize = (int) (BUTTON_SIZE * zoom);
-        int blockSize = (int) (BLOCK_SIZE * zoom);
-        int drawRectanglePositionX = (int) (10 * zoom + blockSize * 2);
-        int drawRectanglePositionY = this.getHeight() - rectangleSize - (int) (10 * zoom);
         int padding = (int) (5 * zoom);
+        int drawRectanglePositionX = this.getWidth() - 4 * rectangleSize - padding * 4;
+        int drawRectanglePositionY = this.getHeight() - rectangleSize - padding;
 
         //PADDING * (i+1) + i*100+150, PADDING, BUTTON_WIDTH, BUTTON_HEIGHT
         // Travel the shapMap
@@ -279,7 +277,7 @@ public class SceneRenderEngine extends JPanel {
             g2d.setColor(item.getColor());
             g2d.fill(item.getRectangle());
             g2d.setColor(Color.black);
-            g2d.drawString(item.getShapeName(), (float) posX, drawRectanglePositionY + rectangleSize);
+            g2d.drawString(item.getShapeName(), (float) posX + padding / 2, drawRectanglePositionY + rectangleSize - padding / 2);
         }
     }
 
@@ -303,14 +301,20 @@ public class SceneRenderEngine extends JPanel {
         int roomRadius = (int) (BLOCK_SIZE * zoom / 2f);
         int playerRadius = (int) (PLAYER_SIZE / 2 * zoom);
 
+        ArrayList<Character> otherCharacters = dom.getOtherCharacter();
         for (int screenBlockX = 0; screenBlockX < visibleBlockW; screenBlockX++) {
             for (int screenBlockY = 0; screenBlockY < visibleBlockH; screenBlockY++) {
                 // Actual block index in map
                 int mapBlockX = Math.floorMod(screenBlockX + firstVisibleBlockX, MAP_WIDTH);
                 int mapBlockY = Math.floorMod(screenBlockY + firstVisibleBlockY, MAP_HEIGHT);
-                boolean isPlayerInBlock = isPlayerInBlock(mapBlockX, mapBlockY);
 
-                BasicBlock block = isPlayerInBlock ? BasicBlock.LIGHT : BasicBlock.DARK;
+                boolean isPlayerInBlock = isPlayerInBlock(mapBlockX, mapBlockY);
+                boolean hasPlayerInBlock = isPlayerInBlock;
+                for (Character character : otherCharacters) {
+                    hasPlayerInBlock |= isPlayerInBlock((int) character.getX(), (int) character.getY(), mapBlockX, mapBlockY);
+                }
+
+                BasicBlock block = hasPlayerInBlock ? BasicBlock.LIGHT : BasicBlock.DARK;
 
                 int drawPositionX = (int) ((screenBlockX * BLOCK_SIZE - screenOffsetX) * zoom);
                 int drawPositionY = (int) ((screenBlockY * BLOCK_SIZE - screenOffsetY) * zoom);
@@ -322,10 +326,10 @@ public class SceneRenderEngine extends JPanel {
                 g2d.setColor(isPlayerInBlock ? new Color(0xff35160a) : new Color(0xff444444));
                 g2d.drawString(String.format("(%d,%d)", Math.floorMod(mapBlockX, MAP_WIDTH),
                                 Math.floorMod(mapBlockY, MAP_HEIGHT)), drawPositionX + (10 * zoom),
-                        drawPositionY + (20 * zoom));
+                        drawPositionY + (15 * zoom));
 
-                // Draw ball & other players
-                if (isPlayerInBlock) {
+                // Draw ball
+                if (hasPlayerInBlock) {
                     BallModel ballInRoom = balls[mapBlockX][mapBlockY];
                     if (ballInRoom != null && ballInRoom.ballType != BallModel.BallType.NONE) {
                         g2d.setColor(new Color(ballInRoom.getBallColor()));
@@ -342,18 +346,16 @@ public class SceneRenderEngine extends JPanel {
                                 drawPositionY + roomRadius - (int) (ballRadius * .6f),
                                 (int) (ballRadius * .4f), (int) (ballRadius * .4f));
                     }
+                }
 
-                    // Draw other players
-                    for (int i = 0; i < otherCharacters.size(); i++) {
-                        Character temPlayer = otherCharacters.get(i);
-                        boolean isTempInBlock = isPlayerInBlock((int) temPlayer.getX(), (int) temPlayer.getY(), mapBlockX, mapBlockY);
-                        if (isTempInBlock) {
-                            int offsetX = (int) (temPlayer.getX() % 100 * zoom) - playerRadius;
-                            int offsetY = (int) (temPlayer.getY() % 100 * zoom) - playerRadius;
-//                            System.out.println();
-                            g2d.drawImage(temPlayer.getImage(), drawPositionX + offsetX, drawPositionY + offsetY, 2 * playerRadius,
-                                    2 * playerRadius, null);
-                        }
+                // Draw other players
+                for (Character character : otherCharacters) {
+                    boolean isCharacterInBlock = isPlayerInBlock((int) character.getX(), (int) character.getY(), mapBlockX, mapBlockY);
+                    if (isCharacterInBlock) {
+                        int offsetX = (int) (character.getX() % 100 * zoom) - playerRadius;
+                        int offsetY = (int) (character.getY() % 100 * zoom) - playerRadius;
+                        g2d.drawImage(character.getImage(), drawPositionX + offsetX, drawPositionY + offsetY, 2 * playerRadius,
+                                2 * playerRadius, null);
                     }
                 }
             }
@@ -370,9 +372,9 @@ public class SceneRenderEngine extends JPanel {
         // noinspection ConstantConditions
         if (DEBUG) {
             // Debug messages
-            int drawTextPositionX = (int) (10 * zoom);
-            int drawTextPositionY = this.getHeight() - (int) (10 * zoom);
-            int lineHeight = (int) (20 * zoom);
+            int drawTextPositionX = (int) (5 * zoom);
+            int drawTextPositionY = this.getHeight() - (int) (5 * zoom);
+            int lineHeight = (int) (10 * zoom);
 
             g2d.setColor(Color.WHITE);
 

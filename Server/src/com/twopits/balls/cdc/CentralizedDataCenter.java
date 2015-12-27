@@ -1,5 +1,6 @@
 package com.twopits.balls.cdc;
 
+import java.util.Random;
 import java.util.Vector;
 
 /**
@@ -24,7 +25,20 @@ public class CentralizedDataCenter implements CentralizedDataCenterInterface {
         if(getPlayerMapCount()==4){
             return null;
         }
-        int x=0,y=0,dir=0;
+        double x=0,y=0;
+        int dir=0;
+        Random random=new Random();
+        boolean b=false;
+        while(!b) {
+            x = random.nextInt(10)*100 + 25 + random.nextInt(2) * 50;
+            y =  random.nextInt(10)*100 + 25 + random.nextInt(2) * 50;
+            b=true;
+            for(int i=0;i<playerMap.size();i++){
+               if(x==playerMap.elementAt(i).getX()&&y==playerMap.elementAt(i).getY()){
+                   b=false;
+               }
+            }
+        }
         Player player = new Player(playerMap.size(),x,y,dir);
         playerMap.add(player);
         return player;
@@ -35,7 +49,7 @@ public class CentralizedDataCenter implements CentralizedDataCenterInterface {
     }
     public Player findPlayer(int clientno){
         for(int i = 0; i< playerMap.size(); i++){
-            if(playerMap.elementAt(i).getClientno()==clientno) {
+            if(playerMap.elementAt(i).getID()==clientno) {
                 return playerMap.elementAt(i);
             }
         }

@@ -19,7 +19,6 @@ public class BallModel {
 	public BallModel(BallType type) {
 		this.ballType = type;
 	}
-
 	@Override
 	public boolean equals(Object obj) {
 		return obj instanceof BallModel && this.ballType == ((BallModel) obj).ballType;

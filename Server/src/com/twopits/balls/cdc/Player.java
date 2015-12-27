@@ -15,10 +15,10 @@ public class Player {
         this.y=y;
         this.dir=dir;
     }
-    public void setClientno(int ID){
+    public void setID(int ID){
         this.ID=ID;
     }
-    public int getClientno(){
+    public int getID(){
         return this.ID;
     }
     public void updateInfo(double x,double y, int dir){

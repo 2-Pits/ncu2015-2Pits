@@ -81,7 +81,7 @@ public class DynamicObjectModule implements DOMInterface{
 
         return other;
     }
-
+    
     @Override
     public void updateBall(String gsonBall) {
 
