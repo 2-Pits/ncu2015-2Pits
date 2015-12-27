@@ -2,7 +2,10 @@ package com.twopits.balls;
 
 import dom.DynamicObjectModule;
 
-import javax.swing.JFrame;
+import javax.swing.*;
+import java.awt.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 
 /**
  * Main class of Balls
@@ -38,9 +41,8 @@ public class App {
 	}
 
 	public App() {
+
 		mDom = new DynamicObjectModule();
-
-
 
 		mRenderEngine = new SceneRenderEngine(this);
 		JFrame window = new GameWindow();
@@ -49,7 +51,7 @@ public class App {
 		mTcpcm.buildConnection();
 
 		window.add(mRenderEngine);
-		mKeyManager = new KeyManager();
+		mKeyManager = new KeyManager(mTcpcm);
 		window.addKeyListener(mKeyManager);
 		window.setVisible(true);
 

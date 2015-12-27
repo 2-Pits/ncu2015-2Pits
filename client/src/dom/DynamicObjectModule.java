@@ -1,6 +1,7 @@
 package dom;
 
 import com.google.gson.Gson;
+import com.twopits.balls.KeyManager;
 import com.twopits.balls.libs.OneGamer;
 import sprite.Character;
 

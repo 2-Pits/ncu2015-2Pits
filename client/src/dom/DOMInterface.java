@@ -1,6 +1,7 @@
 package dom;
 
 import com.google.gson.Gson;
+import com.twopits.balls.KeyManager;
 import sprite.*;
 import sprite.Character;
 
@@ -36,4 +37,5 @@ public interface DOMInterface {
     boolean gameOver(); //call by Scene,結束遊戲
 
     String getWinner(); //call by Scene,畫誰是贏家
+
 }

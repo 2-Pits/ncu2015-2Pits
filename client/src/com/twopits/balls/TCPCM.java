@@ -3,8 +3,11 @@ package com.twopits.balls;
 import com.google.gson.Gson;
 import com.twopits.balls.libs.OneGamer;
 import dom.DynamicObjectModule;
+import sprite.*;
 
 import javax.jws.Oneway;
+import javax.swing.text.Keymap;
+import java.awt.event.KeyEvent;
 import java.io.*;
 import java.net.InetAddress;
 import java.net.Socket;
@@ -23,23 +26,21 @@ public class TCPCM {
     private InetAddress ServerIP;
     private Socket socket;
     private Thread recieveThread, sendThread;
-    private InputStream in ;
+    private InputStream in;
     private OutputStream out;
     private BufferedReader br;
     private InputStreamReader isr;
 
-
-
-    public TCPCM(App app,DynamicObjectModule dom){
+    public TCPCM(App app, DynamicObjectModule dom) {
         this.dom = dom;
         this.app = app;
 
     }
 
-    public void buildConnection(){
+    public void buildConnection() {
         try {
             ServerIP = InetAddress.getByName(IP);
-            socket = new Socket(ServerIP,PORT);
+            socket = new Socket(ServerIP, PORT);
             System.out.println("Create Socket");
             initAll();
             createThread();
@@ -50,30 +51,28 @@ public class TCPCM {
         }
     }
 
-    private void createThread(){
+    private void createThread() {
         recieveThread = new Thread(recieve);
         sendThread = new Thread(send);
 
         recieveThread.start();
     }
 
-    private void firstCall(){
+    private void firstCall() {
         String s;
         OneGamer one;
         try {
             s = br.readLine();
-            one = new Gson().fromJson(s,OneGamer.class);
-            dom.initMyCharacter(one.getID(), one.getX(),one.getY());
-            app.getSceneRenderEngine().setPlayerPosition(one.getX(),one.getY());
-            System.out.println("ID = "+one.getID()+" X= " +one.getX()+" Y = " + one.getY());
+            one = new Gson().fromJson(s, OneGamer.class);
+            dom.initMyCharacter(one.getID(), one.getX(), one.getY());
+            app.getSceneRenderEngine().setPlayerPosition(one.getX(), one.getY());
+            System.out.println("ID = " + one.getID() + " X= " + one.getX() + " Y = " + one.getY());
         } catch (IOException e) {
             e.printStackTrace();
         }
-
-
     }
 
-    private void initAll(){
+    private void initAll() {
         try {
             in = socket.getInputStream();
             out = socket.getOutputStream();
@@ -83,29 +82,31 @@ public class TCPCM {
         } catch (IOException e) {
             e.printStackTrace();
         }
+    }
+
+    public void pickUpBalls(int keyCode) {
+        sprite.Character character = dom.getMyCharacter();
+        int ID = character.getID();
 
     }
 
     Runnable send = new Runnable() {
         @Override
         public void run() {
-
         }
     };
 
     Runnable recieve = new Runnable() {
 
-
         @Override
         public void run() {
 
-                try {
+            try {
 
-
-                    Thread.sleep(200);
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
-                }
+                Thread.sleep(200);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
 
         }
     };
