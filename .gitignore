@@ -1,11 +1,11 @@
 *.iml
-.idea
+client/.idea
 
 # Java class files
 *.class
 
 # generated files
-out/
+client/out/
 
 # Local configuration file (sdk path, etc)
 local.properties
