@@ -21,10 +21,16 @@ public class DynamicObjectModule implements DOMInterface{
     public DynamicObjectModule() {
         other = new ArrayList<Character>();
         gameState = GAMESTOP;
+        initEmptyCharacter();
+    }
+
+    private void initEmptyCharacter(){
+        myChar = new Character(0, 0, 0);
     }
 
     public void initMyCharacter(int ID, double x, double y) {
-        myChar = new Character(ID, x, y);
+        myChar.setID(ID);
+        myChar.setPosition(x,y);
         initAllCharacter(4);
     }
 

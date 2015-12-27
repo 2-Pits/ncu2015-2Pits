@@ -5,7 +5,6 @@ import com.twopits.balls.libs.Utils;
 import com.twopits.balls.models.BallModel;
 import com.twopits.balls.models.IntegerPosition;
 import dom.DynamicObjectModule;
-import sprite.*;
 import sprite.Character;
 
 import java.awt.*;
@@ -39,7 +38,7 @@ public class SceneRenderEngine extends JPanel {
     // Initial player at the 1/4 of (0,0)
     private double mPlayerX = BLOCK_SIZE / 4, mPlayerY = BLOCK_SIZE / 4;
 
-    private static final int BUTTON_SIZE = BLOCK_SIZE/4;
+    private static final int BUTTON_SIZE = BLOCK_SIZE / 4;
 
     private enum BasicBlock {
         DARK, LIGHT
@@ -48,7 +47,7 @@ public class SceneRenderEngine extends JPanel {
     private App mApp;
     private Font mGameFont;
     private Image[] mBlockImages;
-    private Map<Integer, ItemRectangle> mRetangleMap ;
+    private Map<Integer, ItemRectangle> mRectangleMap;
 
     private DynamicObjectModule dom;
     private Character myCharacter;
@@ -59,9 +58,20 @@ public class SceneRenderEngine extends JPanel {
         initValues();
     }
 
+    /**
+     * Set local player position
+     * @param x The x coordinate of player
+     * @param y The x coordinate of player
+     */
+    public void setPlayerPosition(double x, double y) {
+        mPlayerX = x;
+        mPlayerY = y;
+        modPlayerPosition();
+    }
+
     private void initValues() {
         mBlockImages = initBlockResources();
-        mRetangleMap = createRectangles();
+        mRectangleMap = createRectangles();
 
         //TODO Remove fake data
         FakeData.initBallsMap(MAP_WIDTH, MAP_HEIGHT);
@@ -79,16 +89,16 @@ public class SceneRenderEngine extends JPanel {
     }
 
     private Map<Integer, ItemRectangle> createRectangles() {
-        String []names= {"Q","W","E","R"};
-        int []codes= {KeyEvent.VK_Q,KeyEvent.VK_W,KeyEvent.VK_E,KeyEvent.VK_R};
+        String[] names = {"Q", "W", "E", "R"};
+        int[] codes = {KeyEvent.VK_Q, KeyEvent.VK_W, KeyEvent.VK_E, KeyEvent.VK_R};
 
-        Map<Integer, ItemRectangle> retangles= new HashMap<>();
-        for(int i=0;i<4;i++){
+        Map<Integer, ItemRectangle> rectangles = new HashMap<>();
+        for (int i = 0; i < 4; i++) {
             Rectangle rectangle = new Rectangle();
-            retangles.put(codes[i], new ItemRectangle(rectangle, names[i],i));
+            rectangles.put(codes[i], new ItemRectangle(rectangle, names[i], i));
         }
 
-        return retangles;
+        return rectangles;
     }
 
     private Image[] initBlockResources() {
@@ -118,12 +128,12 @@ public class SceneRenderEngine extends JPanel {
 
     private void updateItemRenctangle() {
         KeyManager keyManager = mApp.getKeyManager();
-        int []codes= {KeyEvent.VK_Q,KeyEvent.VK_W,KeyEvent.VK_E,KeyEvent.VK_R};
+        int[] codes = {KeyEvent.VK_Q, KeyEvent.VK_W, KeyEvent.VK_E, KeyEvent.VK_R};
 
         //  effect of feedback
-        for(int code : codes){
+        for (int code : codes) {
             boolean isPressed = keyManager.isKeyPressed(code);
-            mRetangleMap.get(code).setPressed(isPressed);
+            mRectangleMap.get(code).setPressed(isPressed);
         }
     }
 
@@ -158,15 +168,6 @@ public class SceneRenderEngine extends JPanel {
         double dy = playerWayY * PLAYER_SPEED * dt / 1000.0;
         movePlayer(dx, dy);
 
-        // Move player
-        if (dx != 0 || dy != 0) {
-            if (mPlayerX < 0 || mPlayerX > MAP_WIDTH * BLOCK_SIZE) {
-                mPlayerX = Utils.floorMod(mPlayerX, MAP_WIDTH * BLOCK_SIZE);
-            }
-            if (mPlayerY < 0 || mPlayerY > MAP_HEIGHT * BLOCK_SIZE) {
-                mPlayerY = Utils.floorMod(mPlayerY, MAP_HEIGHT * BLOCK_SIZE);
-            }
-        }
 
         myCharacter.setPosition(mPlayerX, mPlayerY);
     }
@@ -235,6 +236,17 @@ public class SceneRenderEngine extends JPanel {
 
         mPlayerX += dx;
         mPlayerY += dy;
+
+        modPlayerPosition();
+    }
+
+    private void modPlayerPosition() {
+        if (mPlayerX < 0 || mPlayerX > MAP_WIDTH * BLOCK_SIZE) {
+            mPlayerX = Utils.floorMod(mPlayerX, MAP_WIDTH * BLOCK_SIZE);
+        }
+        if (mPlayerY < 0 || mPlayerY > MAP_HEIGHT * BLOCK_SIZE) {
+            mPlayerY = Utils.floorMod(mPlayerY, MAP_HEIGHT * BLOCK_SIZE);
+        }
     }
 
     @Override
@@ -251,23 +263,23 @@ public class SceneRenderEngine extends JPanel {
 
     private void drawItemRectangle(Graphics2D g2d, float zoom) {
 
-        int rectangleSize = (int)(BUTTON_SIZE * zoom);
-        int blockSize = (int)(BLOCK_SIZE * zoom);
-        int drawRectanglePositionX = (int)(10 * zoom + blockSize * 2);
+        int rectangleSize = (int) (BUTTON_SIZE * zoom);
+        int blockSize = (int) (BLOCK_SIZE * zoom);
+        int drawRectanglePositionX = (int) (10 * zoom + blockSize * 2);
         int drawRectanglePositionY = this.getHeight() - rectangleSize - (int) (10 * zoom);
-        int padding =(int) (5 * zoom);
+        int padding = (int) (5 * zoom);
 
         //PADDING * (i+1) + i*100+150, PADDING, BUTTON_WIDTH, BUTTON_HEIGHT
         // Travel the shapMap
-        for (ItemRectangle item : mRetangleMap.values()) {
+        for (ItemRectangle item : mRectangleMap.values()) {
             Rectangle rectangle = item.getRectangle();
 
             double posX = padding * item.getIndex() + item.getIndex() * rectangleSize + drawRectanglePositionX;
-            rectangle.setRect(posX,drawRectanglePositionY,rectangleSize,rectangleSize);
+            rectangle.setRect(posX, drawRectanglePositionY, rectangleSize, rectangleSize);
             g2d.setColor(item.getColor());
             g2d.fill(item.getRectangle());
             g2d.setColor(Color.black);
-            g2d.drawString(item.getShapeName(),(float)posX,drawRectanglePositionY +rectangleSize);
+            g2d.drawString(item.getShapeName(), (float) posX, drawRectanglePositionY + rectangleSize);
         }
     }
 
@@ -332,15 +344,15 @@ public class SceneRenderEngine extends JPanel {
                     }
 
                     // Draw other players
-                    for(int i = 0; i < otherCharacters.size(); i++){
+                    for (int i = 0; i < otherCharacters.size(); i++) {
                         Character temPlayer = otherCharacters.get(i);
-                        boolean isTempInBlock = isPlayerInBlock((int)temPlayer.getX(),(int)temPlayer.getY(),mapBlockX, mapBlockY);
-                        if(isTempInBlock){
-                            int offsetX = (int)(temPlayer.getX() % 100 * zoom) - playerRadius;
-                            int offsetY = (int)(temPlayer.getY() % 100 * zoom) - playerRadius;
-                            System.out.println();
+                        boolean isTempInBlock = isPlayerInBlock((int) temPlayer.getX(), (int) temPlayer.getY(), mapBlockX, mapBlockY);
+                        if (isTempInBlock) {
+                            int offsetX = (int) (temPlayer.getX() % 100 * zoom) - playerRadius;
+                            int offsetY = (int) (temPlayer.getY() % 100 * zoom) - playerRadius;
+//                            System.out.println();
                             g2d.drawImage(temPlayer.getImage(), drawPositionX + offsetX, drawPositionY + offsetY, 2 * playerRadius,
-                                    2 * playerRadius, null );
+                                    2 * playerRadius, null);
                         }
                     }
                 }
@@ -402,6 +414,7 @@ public class SceneRenderEngine extends JPanel {
 
     /**
      * Check if local player is inside a room
+     *
      * @param mapBlockX The x coordinate of the room
      * @param mapBlockY The y coordinate of the room
      */
@@ -412,8 +425,9 @@ public class SceneRenderEngine extends JPanel {
 
     /**
      * Check if a player is inside a room
-     * @param playerX The x position of the player
-     * @param playerY The y position of the player
+     *
+     * @param playerX   The x position of the player
+     * @param playerY   The y position of the player
      * @param mapBlockX The x coordinate of the room
      * @param mapBlockY The y coordinate of the room
      * @return The local player is inside (mapBlockX, mapBlockY)
@@ -441,22 +455,21 @@ public class SceneRenderEngine extends JPanel {
 
     class ItemRectangle {
 
-        private final Color DEFAULT_COLOR = Color.decode( "#448AFF");
-        private final Color PRESSED_COLOR = Color.decode( "#2962FF");
+        private final Color DEFAULT_COLOR = Color.decode("#448AFF");
+        private final Color PRESSED_COLOR = Color.decode("#2962FF");
         private Color color;
         private Rectangle rectangle;
         private String shapeName;
         private int index;
 
-        public ItemRectangle(Rectangle rectangle,String shapeName,int index) {
+        public ItemRectangle(Rectangle rectangle, String shapeName, int index) {
             this.rectangle = rectangle;
             this.color = DEFAULT_COLOR;
             this.shapeName = shapeName;
             this.index = index;
         }
 
-        public void  setPressed(boolean pressed)
-        {
+        public void setPressed(boolean pressed) {
             color = pressed ? PRESSED_COLOR : DEFAULT_COLOR;
         }
 
@@ -472,7 +485,7 @@ public class SceneRenderEngine extends JPanel {
             return rectangle;
         }
 
-        public String getShapeName(){
+        public String getShapeName() {
             return shapeName;
         }
 
