@@ -28,6 +28,14 @@ public class Character{
         setPosition(x, y);
     }
 
+    public Character(int id, double x, double y,int dir){
+        this.ID = id;
+        this.x = x;
+        this.y = y;
+        this.frame = dir;
+    }
+
+
     public void update(int dt){
         this.dt += dt;
         while (this.dt >= FRAME_TIME){

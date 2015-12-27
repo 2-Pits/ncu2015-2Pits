@@ -4,6 +4,9 @@ import com.twopits.balls.libs.FakeData;
 import com.twopits.balls.libs.Utils;
 import com.twopits.balls.models.BallModel;
 import com.twopits.balls.models.IntegerPosition;
+import dom.DynamicObjectModule;
+import sprite.*;
+import sprite.Character;
 
 import java.awt.BasicStroke;
 import java.awt.Color;
@@ -15,6 +18,7 @@ import java.awt.RenderingHints;
 import java.awt.Toolkit;
 import java.awt.event.KeyEvent;
 import java.io.File;
+import java.util.ArrayList;
 
 import javax.swing.JPanel;
 
@@ -40,6 +44,7 @@ public class SceneRenderEngine extends JPanel {
 	// Initial player at the 1/4 of (0,0)
 	private double mPlayerX = BLOCK_SIZE / 4, mPlayerY = BLOCK_SIZE / 4;
 
+
 	private enum BasicBlock {
 		DARK, LIGHT
 	}
@@ -47,6 +52,10 @@ public class SceneRenderEngine extends JPanel {
 	private App mApp;
 	private Font mGameFont;
 	private Image[] mBlockImages;
+
+	private DynamicObjectModule dom;
+	private Character myCharacter;
+	private ArrayList<Character> otherCharacters;
 
 	public SceneRenderEngine(App app) {
 		mApp = app;
@@ -65,6 +74,10 @@ public class SceneRenderEngine extends JPanel {
 			e.printStackTrace();
 			mGameFont = new Font(Font.SANS_SERIF, Font.PLAIN, 12);
 		}
+
+		dom = mApp.getDynamicObjectModule();
+		myCharacter = dom.getMyCharacter();
+		otherCharacters = dom.getOtherCharacter();
 	}
 
 	private Image[] initBlockResources() {
@@ -87,6 +100,7 @@ public class SceneRenderEngine extends JPanel {
 
 	public void update(long dt) {
 		updatePlayerPosition(dt);
+		myCharacter.update((int)dt);
 		repaint();
 	}
 
@@ -96,15 +110,19 @@ public class SceneRenderEngine extends JPanel {
 
 		if (keyManager.isKeyPressed(KeyEvent.VK_LEFT)) {
 			playerWayX -= 1.0;
+			myCharacter.setDirection(4);
 		}
 		if (keyManager.isKeyPressed(KeyEvent.VK_RIGHT)) {
 			playerWayX += 1.0;
+			myCharacter.setDirection(8);
 		}
 		if (keyManager.isKeyPressed(KeyEvent.VK_UP)) {
 			playerWayY -= 1.0;
+			myCharacter.setDirection(12);
 		}
 		if (keyManager.isKeyPressed(KeyEvent.VK_DOWN)) {
 			playerWayY += 1.0;
+			myCharacter.setDirection(0);
 		}
 
 		double unitFactor = Math.sqrt(playerWayX * playerWayX + playerWayY * playerWayY);
@@ -126,6 +144,8 @@ public class SceneRenderEngine extends JPanel {
 				mPlayerY = Utils.floorMod(mPlayerY, MAP_HEIGHT * BLOCK_SIZE);
 			}
 		}
+
+		myCharacter.setPosition(mPlayerX, mPlayerY);
 	}
 
 	private void movePlayer(double dx, double dy) {
@@ -269,15 +289,17 @@ public class SceneRenderEngine extends JPanel {
 
 		// TODO Draw players
 		int fakePlayerRadius = (int) (PLAYER_SIZE / 2 * zoom);
-		g2d.setColor(Color.LIGHT_GRAY);
-		g2d.fillRect(this.getWidth() / 2 - fakePlayerRadius,
+		g2d.drawImage(myCharacter.getImage(),this.getWidth() / 2 - fakePlayerRadius,
 				this.getHeight() / 2 - fakePlayerRadius, 2 * fakePlayerRadius,
-				2 * fakePlayerRadius);
-		g2d.setColor(Color.BLACK);
-		g2d.setStroke(new BasicStroke(2 * zoom));
-		g2d.drawRect(this.getWidth() / 2 - fakePlayerRadius,
+				2 * fakePlayerRadius,null);
+		for(int i = 0; i <otherCharacters.size(); i++){
+			Character temp = otherCharacters.get(i);
+			g2d.drawImage(temp.getImage(),(int)temp.getX(),	(int)temp.getY(), 2 * fakePlayerRadius,
+					2 * fakePlayerRadius,null);
+		}
+		/*g2d.drawRect(this.getWidth() / 2 - fakePlayerRadius,
 				this.getHeight() / 2 - fakePlayerRadius, 2 * fakePlayerRadius,
-				2 * fakePlayerRadius);
+				2 * fakePlayerRadius);*/
 
 		boolean DEBUG = true;
 		boolean DEBUG_PLAYER = true;
