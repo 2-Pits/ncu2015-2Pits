@@ -3,15 +3,19 @@ package com.twopits.balls;
 import com.google.gson.Gson;
 import com.twopits.balls.libs.KeyOpt;
 import com.twopits.balls.libs.OneGamer;
-import dom.DynamicObjectModule;
-import sprite.*;
-import sprite.Character;
 
-import java.io.*;
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.OutputStream;
+import java.io.PrintWriter;
 import java.net.InetAddress;
 import java.net.Socket;
 import java.net.UnknownHostException;
-import java.nio.charset.StandardCharsets;
+
+import dom.DynamicObjectModule;
+import sprite.Character;
 
 /**
  * Created by DBLAB on 2015/12/27.
@@ -19,7 +23,7 @@ import java.nio.charset.StandardCharsets;
 public class TCPCM {
 
     private final int PORT = 5278;
-    private final String IP = "140.115.155.92";
+    private final String IP = "127.0.0.1";
 
     private DynamicObjectModule dom;
     private App app;

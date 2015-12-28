@@ -3,13 +3,18 @@ package com.twopits.balls;
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
 import com.twopits.balls.libs.OneGamer;
-import dom.DynamicObjectModule;
-import sprite.*;
 
 import java.io.IOException;
-import java.net.*;
+import java.net.DatagramPacket;
+import java.net.DatagramSocket;
+import java.net.InetAddress;
+import java.net.MulticastSocket;
+import java.net.SocketException;
+import java.net.UnknownHostException;
 import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
+
+import dom.DynamicObjectModule;
 
 /**
  * Created by DBLAB on 2015/12/21.
@@ -19,7 +24,7 @@ public class UDPUS {
     private final int PORT = 45368;
     private final int MULTIBORADCASTPORT = 45369;
     private final String MULTIBORADCASTIP = "239.255.255.255";
-    private final String MYCLIENTIP = "140.115.155.92";
+    private final String MYCLIENTIP = "127.0.0.1";
     private final int PACKETLENGTH = 1000;
 
     private DatagramPacket sendPacket;
