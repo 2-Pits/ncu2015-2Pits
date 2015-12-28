@@ -2,6 +2,7 @@ package com.twopits.balls;
 
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
+import com.twopits.balls.libs.Constants;
 import com.twopits.balls.libs.OneGamer;
 
 import java.io.IOException;
@@ -21,11 +22,7 @@ import dom.DynamicObjectModule;
  */
 public class UDPUS {
 
-    private final int PORT = 45368;
-    private final int MULTIBORADCASTPORT = 45369;
-    private final String MULTIBORADCASTIP = "239.255.255.255";
-    private final String MYCLIENTIP = "140.115.155.92";
-    private final int PACKETLENGTH = 1000;
+
 
     private DatagramPacket sendPacket;
     private DatagramPacket reciveMultiPacket;
@@ -69,15 +66,15 @@ public class UDPUS {
     }
 
     private void createSocket() {
-        byte buff[] = new byte[PACKETLENGTH];
-        sendByteArr = new byte[PACKETLENGTH];
+        byte buff[] = new byte[Constants.PACKETLENGTH];
+        sendByteArr = new byte[Constants.PACKETLENGTH];
         try {
-            multiGroup = InetAddress.getByName(MULTIBORADCASTIP);
-            myAddress = InetAddress.getByName(MYCLIENTIP);
+            multiGroup = InetAddress.getByName(Constants.MULTIBORADCASTIP);
+            myAddress = InetAddress.getByName(Constants.SERVERIP);
             sendSocket = new DatagramSocket();
-            sendPacket = new DatagramPacket(sendByteArr, PACKETLENGTH, myAddress, PORT);
-            reciveMultiPacket = new DatagramPacket(buff, PACKETLENGTH);
-            reciveMultiSocket = new MulticastSocket(MULTIBORADCASTPORT);
+            sendPacket = new DatagramPacket(sendByteArr, Constants.PACKETLENGTH, myAddress, Constants.PORT);
+            reciveMultiPacket = new DatagramPacket(buff, Constants.PACKETLENGTH);
+            reciveMultiSocket = new MulticastSocket(Constants.MULTIBORADCASTPORT);
             reciveMultiSocket.joinGroup(multiGroup);
         } catch (UnknownHostException e) {
             e.printStackTrace();
@@ -109,7 +106,7 @@ public class UDPUS {
                     s = s.trim();
                     dom.downloadCharacter(s);
 
-                    Thread.sleep(200);
+                    Thread.sleep(50);
                 } catch (IOException e) {
                     e.printStackTrace();
                 } catch (InterruptedException e) {
@@ -144,7 +141,7 @@ public class UDPUS {
                 }
                 try {
                     sendSocket.send(sendPacket);
-                    Thread.sleep(200);
+                    Thread.sleep(50);
                 } catch (IOException e) {
                     e.printStackTrace();
                 } catch (InterruptedException e) {
