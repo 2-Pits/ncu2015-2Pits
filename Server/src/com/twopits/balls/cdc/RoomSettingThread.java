@@ -109,6 +109,6 @@ public class RoomSettingThread  extends Thread  { // Waiting for four Ch
             }
         }
         judgeThread.setVector(skvector);
-        judgeThread.startJudgThread();
+        judgeThread.startJudgeThread();
     }
 }

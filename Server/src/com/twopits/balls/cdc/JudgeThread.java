@@ -13,11 +13,12 @@ import java.util.Vector;
 /**
  * Created by dblab2015 on 2015/12/21.
  */
-public class JudgeThread extends Thread {
+public class JudgeThread {
     public static int port = 5278; // 連接埠
     long mSleepDuration;
     CentralizedDataCenter cdc;
     Vector<Socket> skvector;
+    private Thread judgeTh, reciveTh;
     int winner;
     public JudgeThread(CentralizedDataCenter cdc){
         this.cdc=cdc;
@@ -29,26 +30,29 @@ public class JudgeThread extends Thread {
     public long getCurrentSleepDuration() {
         return mSleepDuration;
     }
-    public void startJudgThread() {
-        this.start();
+    public void startJudgeThread() {
+        judgeTh=new Thread(judgeRunnable);
+        judgeTh.start();
+        reciveTh=new Thread(recieveRunnable);
+        reciveTh.start();
     }
-    @Override
-    public void run() {
-        super.run();
-        // noinspection InfiniteLoopStatement
-        while (winner<0) {
-            if(cdc.getOptQueue().isEmpty()){
-                continue;
+    Runnable judgeRunnable = new Runnable() {
+        @Override
+        public void run() {
+            while (winner < 0) {
+                if (cdc.getOptQueue().isEmpty()) {
+                    continue;
+                }
+                KeyOpt tempkeyopt = cdc.getOptQueue().remove(); // ID qwer
+                cdc.getBallMap().exchangeBall((int) cdc.findPlayer(tempkeyopt.getID()).getX() / 100,
+                        (int) cdc.findPlayer(tempkeyopt.getID()).getY() / 100,
+                        tempkeyopt.getID(),
+                        tempkeyopt.getkeyCode());
+                winner = cdc.getBallMap().winnerScan();
+                sendBallStatus(winner);
             }
-            KeyOpt tempkeyopt=cdc.getOptQueue().remove(); // ID qwer
-            cdc.getBallMap().exchangeBall((int) cdc.findPlayer(tempkeyopt.getID()).getX()/100,
-                                          (int) cdc.findPlayer(tempkeyopt.getID()).getY()/100,
-                                          tempkeyopt.getID(),
-                                          tempkeyopt.getkeyCode());
-            winner=cdc.getBallMap().winnerScan();
-            sendBallStatus(winner);
         }
-    }
+    };
     public void sendBallStatus(int winner) {
         for(int i=0;i<skvector.size();i++) {
             System.out.println(skvector.elementAt(i).getInetAddress());
