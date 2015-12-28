@@ -176,23 +176,22 @@ public class TCPCM {
                 String gball;
                 try {
                     s = br.readLine();
-                    if (Integer.valueOf(s) != -1) {
-                        //If winner showup, then close connection and show winner.
-                        System.out.println("Winner is : " + s + "\n");
-                        stopConnection();
-                        dom.endGame(s);
-                        break;
-                    }
                     gball = br.readLine();
                     System.out.println(gball);
                     dom.updateBall(gball);
+                    if (Integer.valueOf(s) != -1) {
+                        //If winner showup, then close connection and show winner.
+                        System.out.println("Winner is : " + s + "\n");
+                        dom.endGame(s);
+
+                        stopConnection();
+                        break;
+                    }
                 } catch (IOException e) {
                     e.printStackTrace();
                 }
 
             }
-
-
         }
     };
 
