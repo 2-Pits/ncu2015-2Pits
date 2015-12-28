@@ -40,9 +40,8 @@ public class App {
 	public App() {
 		mDom = new DynamicObjectModule();
 
-
-
 		mRenderEngine = new SceneRenderEngine(this);
+		mRenderThread = new RenderThread(mRenderEngine);
 		JFrame window = new GameWindow();
 
 		mTcpcm = new TCPCM(this,mDom);
@@ -52,12 +51,7 @@ public class App {
 		mKeyManager = new KeyManager();
 		window.addKeyListener(mKeyManager);
 		window.setVisible(true);
-
-		mRenderThread = new RenderThread(mRenderEngine);
-		mRenderThread.startRenderThread();
-
-
-
+		
 		mUdpus = new UDPUS(mDom);
 		mUdpus.iniUDPServer();
 		mUdpus.runReciveThread();
