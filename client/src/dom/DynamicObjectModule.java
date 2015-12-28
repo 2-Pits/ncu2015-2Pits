@@ -72,8 +72,8 @@ public class DynamicObjectModule implements DOMInterface{
             gamers[i] = gson.fromJson(gsons[i], OneGamer.class);
         }
         for (int i = 0; i < other.size(); i++) {
-            other.get(i).setPosition(gamers[other.get(i).getID()].getX(), gamers[other.get(i).getID()].getY());
-            other.get(i).setDirection(gamers[other.get(i).getID()].getDir());
+            OneGamer tempGamer = gamers[other.get(i).getID()];
+            other.get(i).setPosition(tempGamer.getX(), tempGamer.getY(),tempGamer.getDir());
         }
 
     }
