@@ -137,9 +137,9 @@ public class UDPBC {
 
                 try {
                     sendMultiSocket.send(sendMultiPacket);
-                    for(Player each : allPlayerMap){
-                        System.out.println(each.getID()+"("+each.getX()+","+each.getY()+")"+" dir:"+each.getDir());
-                    }
+                 /*   for(Player each : allPlayerMap){
+                       // System.out.println(each.getID()+"("+each.getX()+","+each.getY()+")"+" dir:"+each.getDir());
+                    }*/
                 } catch (IOException e) {
                     e.printStackTrace();
                 }

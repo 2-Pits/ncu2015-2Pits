@@ -2,9 +2,7 @@ package com.twopits.balls.cdc;
 
 import com.google.gson.Gson;
 
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
+import java.io.*;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.nio.charset.StandardCharsets;
@@ -18,6 +16,7 @@ public class JudgeThread {
     long mSleepDuration;
     CentralizedDataCenter cdc;
     Vector<Socket> skvector;
+    ServerSocket ss = null;     // 建立 TCP 伺服器。
     private Thread judgeTh, reciveTh;
     int winner;
     public JudgeThread(CentralizedDataCenter cdc){
@@ -26,6 +25,9 @@ public class JudgeThread {
     }
     public void setVector(Vector<Socket> skvector){
         this.skvector = skvector;
+    }
+    public void setServerSocket(ServerSocket ss){
+        this.ss = ss;
     }
     public long getCurrentSleepDuration() {
         return mSleepDuration;
@@ -58,16 +60,15 @@ public class JudgeThread {
             System.out.println(skvector.elementAt(i).getInetAddress());
             try {
                 OutputStream os=skvector.elementAt(i).getOutputStream();
-                os.write(winner);// 送訊息到 Client 端。
-                os.flush();
-                os.write('\n');// 送訊息到 Client 端。
-                os.flush();
+                PrintWriter printWriter = new PrintWriter(os);
+                printWriter.print(String.valueOf(winner) + "\n");
+                printWriter.flush();
+
                 String s = new Gson().toJson(cdc.getBallMap());
-                byte[] bytes = s.getBytes(StandardCharsets.UTF_8);
-                os.write(bytes);// 送訊息到 Client 端。
-                os.flush();
-                os.write('\n');// 送訊息到 Client 端。
-                os.flush();
+                printWriter.print(s + "\n");
+                printWriter.flush();
+
+                System.out.printf("winner : %s , %s \n", String.valueOf(winner), s);
             } catch (IOException e) {
                 e.printStackTrace();
             }
@@ -75,39 +76,46 @@ public class JudgeThread {
     }
 
     Runnable recieveRunnable = new Runnable() {
-        byte[] b;
-        String s;
-
         @Override
         public void run() {
-            ServerSocket ss = null;     // 建立 TCP 伺服器。
-            try {
-                ss = new ServerSocket(port);
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
             System.out.println("TCPKeyopt Thread");
-            while (true) {
-                Socket sc = null;                // 接收輸入訊息。
-                try {
-                    sc = ss.accept();
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-                System.out.println("Waiting!!");
-                InputStream is = null;    // 取得輸出串流。
-                try {
-                    is=sc.getInputStream();
-                    is.read(b);
-                    s = new String(b);
-                    s = s.trim();
-                    KeyOpt temp = new Gson().fromJson(s, KeyOpt.class);
-                    cdc.getOptQueue().add(temp);
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-
+            System.out.printf("socket num : %d" , skvector.size());
+            for(int i=0;i<skvector.size();i++) {
+                new Thread(new clientService(skvector.elementAt(i))).start();
             }
         }
     };
+
+    class clientService implements Runnable{
+
+        Socket socket;
+        byte[] b;
+
+        public clientService(Socket s){
+            socket = s;
+        }
+
+        @Override
+        public void run() {
+            System.out.println("run clientService");
+            while (true) {
+                try {
+                    InputStream is=socket.getInputStream();
+                    BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(is));
+                    if(bufferedReader.ready()){
+                        String s = bufferedReader.readLine();
+                        s = s.trim();
+                        System.out.println(s);
+                        KeyOpt temp = new Gson().fromJson(s, KeyOpt.class);
+                        cdc.getOptQueue().add(temp);
+                    }
+
+                } catch (IOException e) {
+                    e.printStackTrace();
+                    break;
+                }
+            }
+        }
+    }
+
 }

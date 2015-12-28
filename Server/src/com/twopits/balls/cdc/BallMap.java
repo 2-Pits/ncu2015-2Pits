@@ -1,5 +1,7 @@
 package com.twopits.balls.cdc;
 
+import java.awt.event.KeyEvent;
+
 /**
  * Created by Lenovo on 2015/12/18.
  */
@@ -47,9 +49,34 @@ public class BallMap {
         }
         return -1;
     }
-    public void exchangeBall(int ID,int keycode,int x,int y){
-        int temp=item[ID][keycode];
-        item[ID][keycode]=court[x][y];
+    public void exchangeBall(int x,int y,int ID,int keycode){
+
+        System.out.printf("ID : %d, keycode : %d, x : %d, y : %d   \n", ID, keycode, x, y);
+
+        int key = 0;
+        switch(keycode){
+            case KeyEvent.VK_Q:
+                System.out.println("press Q");
+                key = 0;
+            break;
+            case KeyEvent.VK_W:
+                System.out.println("press W");
+                key = 1;
+            break;
+            case KeyEvent.VK_E:
+                System.out.println("press E");
+                key = 2;
+            break;
+            case KeyEvent.VK_R:
+                System.out.println("press R");
+                key = 3;
+            break;
+        }
+
+        System.out.printf("item : %d, court : %d\n", item[ID][key], court[x][y]);
+
+        int temp=item[ID][key];
+        item[ID][key]=court[x][y];
         court[x][y]=temp;
     }
 }

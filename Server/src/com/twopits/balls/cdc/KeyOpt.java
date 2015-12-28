@@ -9,8 +9,8 @@ public class KeyOpt {
     private int ID;
     private int keyCode;
     public KeyOpt(int ID,int keyCode){
-        ID=this.ID;
-        keyCode=this.keyCode;
+        this.ID=ID;
+        this.keyCode=keyCode;
     }
     public int getID(){
         return ID;

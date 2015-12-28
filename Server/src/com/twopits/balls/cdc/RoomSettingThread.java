@@ -17,6 +17,7 @@ import java.util.Vector;
 public class RoomSettingThread  extends Thread  { // Waiting for four Ch
     long mSleepDuration;
     public static int port = 5278; // 連接埠
+    ServerSocket ss = null;     // 建立 TCP 伺服器。
     Vector<InetAddress> ipvector;
     Vector<Socket> skvector;
     CentralizedDataCenter cdc;
@@ -38,12 +39,13 @@ public class RoomSettingThread  extends Thread  { // Waiting for four Ch
     public void startRoomSettingThread() {
         this.start();
     }
-
+    public ServerSocket getServerSocket(){
+        return ss;
+    }
     @Override
     public void run() {
         super.run();
         // noinspection InfiniteLoopStatement
-        ServerSocket ss = null;     // 建立 TCP 伺服器。
         try {
             ss = new ServerSocket(port);
         } catch (IOException e) {
@@ -57,6 +59,7 @@ public class RoomSettingThread  extends Thread  { // Waiting for four Ch
                 System.out.println(skvector.elementAt(i).getInetAddress());
                 try {
                     skvector.elementAt(i).getOutputStream().write(skvector.size());
+                    skvector.elementAt(i).getOutputStream().flush();
                 } catch (IOException e) {
                     e.printStackTrace();
                 }
@@ -104,11 +107,13 @@ public class RoomSettingThread  extends Thread  { // Waiting for four Ch
         for(int i=0;i<skvector.size();i++) {
             try {
                 skvector.elementAt(i).getOutputStream().write(skvector.size());
+                skvector.elementAt(i).getOutputStream().flush();
             } catch (IOException e) {
                 e.printStackTrace();
             }
         }
         judgeThread.setVector(skvector);
+        judgeThread.setServerSocket(ss);
         judgeThread.startJudgeThread();
     }
 }
