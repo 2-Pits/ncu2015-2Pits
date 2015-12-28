@@ -208,13 +208,9 @@ public class SceneRenderEngine extends JPanel {
 		boolean isInsideRoom =
 				validLeftAfter && validRightAfter && validTopAfter && validBottomAfter;
 		if (isInsideRoom) {
-			IntegerPosition playerBlock = getPlayerCurrentBlock();
-			BallModel playerBlockBall = FakeData.getBallsMap()[playerBlock.x][playerBlock.y];
-			boolean isTouchingBall = playerBlockBall != null &&
-					playerBlockBall.ballType != BallModel.BallType.NONE &&
-					Math.pow(playerOffsetXAfter - BLOCK_SIZE / 2f, 2) +
-							Math.pow(playerOffsetYAfter - BLOCK_SIZE / 2f, 2) <
-							Math.pow(BALL_RADIUS + PLAYER_SIZE / 2f, 2f);
+			boolean isTouchingBall = Math.pow(playerOffsetXAfter - BLOCK_SIZE / 2f, 2) +
+					Math.pow(playerOffsetYAfter - BLOCK_SIZE / 2f, 2) <
+					Math.pow(BALL_RADIUS + PLAYER_SIZE / 2f, 2f);
 
 			if (isTouchingBall) {
 				return;
