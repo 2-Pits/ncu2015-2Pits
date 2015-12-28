@@ -1,6 +1,7 @@
 package dom;
 
 import com.google.gson.Gson;
+import com.twopits.balls.models.BallModel;
 import sprite.*;
 import sprite.Character;
 
@@ -23,9 +24,9 @@ public interface DOMInterface {
 
     void updateBall(String gsonBall);   // call by TCP ，從Server得到所有球狀態，用來更新球狀態
 
-    ArrayList getAllBall();  //call by Scene ,用來畫圖,得到所有場上所有球的狀態(位置)
+    BallModel[][] getAllBall();  //call by Scene ,用來畫圖,得到所有場上所有球的狀態(位置)
 
-    ArrayList getQWERState();    //call by Scene,用來畫圖,畫QWER格子的球
+    ArrayList<BallModel> getQWERState();    //call by Scene,用來畫圖,畫QWER格子的球
 
     void startGame();   //call by TCP,用來開始遊戲
 
