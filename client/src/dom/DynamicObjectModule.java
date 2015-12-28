@@ -1,7 +1,9 @@
 package dom;
 
 import com.google.gson.Gson;
+import com.twopits.balls.BallMap;
 import com.twopits.balls.libs.OneGamer;
+import com.twopits.balls.models.BallModel;
 import sprite.Character;
 
 import java.util.ArrayList;
@@ -17,9 +19,12 @@ public class DynamicObjectModule implements DOMInterface{
     private ArrayList<Character> other;
     private Boolean gameState;
     private String winner;
+    private BallMap mballMap;
+
 
     public DynamicObjectModule() {
         other = new ArrayList<Character>();
+        mballMap = new BallMap();
         gameState = GAMESTOP;
         initEmptyCharacter();
     }
@@ -70,9 +75,6 @@ public class DynamicObjectModule implements DOMInterface{
             other.get(i).setPosition(gamers[other.get(i).getID()].getX(), gamers[other.get(i).getID()].getY());
         }
 
-        /*for(int i =0;i<gsons.length;i++){
-            System.out.println(gsons[i]);
-        }*/
     }
 
     public ArrayList<Character> getOtherCharacter() {
@@ -84,17 +86,31 @@ public class DynamicObjectModule implements DOMInterface{
     
     @Override
     public void updateBall(String gsonBall) {
-
+        Gson gson  = new Gson();
+        mballMap = gson.fromJson(gsonBall,BallMap.class);
     }
 
     @Override
-    public ArrayList getAllBall() {
-        return null;
+    public BallModel[][] getAllBall() {
+        BallModel[][] mballModel = new BallModel[10][10];
+        for(int i = 0; i < 10; i++){
+            for (int j = 0; j < 10; j++) {
+                BallModel.BallType ballType = BallModel.BallType.values()[mballMap.getCourt()[i][j]];
+                mballModel[i][j] = new BallModel(ballType);
+            }
+        }
+        return mballModel;
     }
 
     @Override
-    public ArrayList getQWERState() {
-        return null;
+    public ArrayList<BallModel> getQWERState() {
+        ArrayList<BallModel> mballModel = new ArrayList();
+        int id = myChar.getID();
+        for(int i = 0; i < 4; i++){
+                BallModel.BallType ballType = BallModel.BallType.values()[mballMap.getItem()[id][i]];
+                mballModel.add(new BallModel(ballType));
+        }
+        return mballModel;
     }
 
     @Override
