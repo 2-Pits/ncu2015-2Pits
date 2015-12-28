@@ -1,6 +1,7 @@
 package com.twopits.balls;
 
 import com.google.gson.Gson;
+import com.twopits.balls.libs.KeyOpt;
 import com.twopits.balls.libs.OneGamer;
 import dom.DynamicObjectModule;
 
@@ -8,6 +9,7 @@ import java.io.*;
 import java.net.InetAddress;
 import java.net.Socket;
 import java.net.UnknownHostException;
+import java.nio.charset.StandardCharsets;
 
 /**
  * Created by DBLAB on 2015/12/27.
@@ -62,6 +64,19 @@ public class TCPCM {
     //�����y���A
     public void startUpdateRecieveBallStatus(){
 
+    }
+
+    public void pickUpBalls(int keyCode) {
+        sprite.Character character = dom.getMyCharacter();
+        int ID = character.getID();
+        KeyOpt myData = new KeyOpt(ID, keyCode);
+        String tempS = new Gson().toJson(myData);
+        byte[] bytes = tempS.getBytes(StandardCharsets.UTF_8);
+        try {
+            out.write(bytes);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 
     private void createThread() {

@@ -48,7 +48,7 @@ public class App {
 		mTcpcm.buildConnection();
 
 		window.add(mRenderEngine);
-		mKeyManager = new KeyManager();
+		mKeyManager = new KeyManager(mTcpcm);
 		window.addKeyListener(mKeyManager);
 		window.setVisible(true);
 		
