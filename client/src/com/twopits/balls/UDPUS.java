@@ -106,10 +106,8 @@ public class UDPUS {
                     s = s.trim();
                     dom.downloadCharacter(s);
 
-                    Thread.sleep(50);
+
                 } catch (IOException e) {
-                    e.printStackTrace();
-                } catch (InterruptedException e) {
                     e.printStackTrace();
                 }
             }
