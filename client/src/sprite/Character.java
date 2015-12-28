@@ -20,7 +20,7 @@ public class Character{
     private boolean isMove;
     private int speed;
     private int dt = 0;
-    private final int FRAME_TIME = 250;
+    private final int FRAME_TIME = 150;
 
     public Character(int id, double x, double y){
         setID(id);

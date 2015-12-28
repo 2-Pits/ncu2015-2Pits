@@ -120,8 +120,16 @@ public class SceneRenderEngine extends JPanel {
     public void update(long dt) {
         updatePlayerPosition(dt);
         updateItemRenctangle();
-        myCharacter.update((int) dt);
+        updatePlayer((int) dt);
         repaint();
+    }
+
+    private void updatePlayer(int dt){
+        myCharacter.update(dt);
+        ArrayList<Character> otherCharacters = dom.getOtherCharacter();
+        for(Character character : otherCharacters){
+            character.update(dt);
+        }
     }
 
     private void updateItemRenctangle() {
@@ -295,7 +303,7 @@ public class SceneRenderEngine extends JPanel {
         int visibleBlockH = (int) (this.getHeight() / zoom) / BLOCK_SIZE + 2;
 
         // TODO Remove usage of fake data
-        BallModel[][] balls = FakeData.getBallsMap();
+        BallModel[][] balls = dom.getAllBall();
         int ballRadius = (int) (BALL_RADIUS * zoom);
         int roomRadius = (int) (BLOCK_SIZE * zoom / 2f);
         int playerRadius = (int) (PLAYER_SIZE / 2 * zoom);
@@ -361,7 +369,6 @@ public class SceneRenderEngine extends JPanel {
         }
 
         // TODO Draw players
-
         g2d.drawImage(myCharacter.getImage(), this.getWidth() / 2 - playerRadius,
                 this.getHeight() / 2 - playerRadius, 2 * playerRadius,
                 2 * playerRadius, null);
