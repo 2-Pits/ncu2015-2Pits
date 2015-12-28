@@ -1,7 +1,6 @@
 package com.twopits.balls;
 
 import com.google.gson.Gson;
-import com.google.gson.JsonObject;
 import com.twopits.balls.libs.Constants;
 import com.twopits.balls.libs.OneGamer;
 
@@ -10,14 +9,13 @@ import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.net.InetAddress;
 import java.net.MulticastSocket;
-import java.net.SocketException;
-import java.net.UnknownHostException;
 import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 
 import dom.DynamicObjectModule;
 
 /**
+ * UDP networking
  * Created by DBLAB on 2015/12/21.
  */
 public class UDPUS {
@@ -27,10 +25,8 @@ public class UDPUS {
 	private DatagramSocket sendSocket;
 	private MulticastSocket reciveMultiSocket;
 	private Thread sendTh, reciveTh;
-	private InetAddress multiGroup, myAddress;
 	private byte[] sendByteArr;
 	private DynamicObjectModule dom;
-	private sprite.Character character;
 
 	public UDPUS(DynamicObjectModule dom) {
 		this.dom = dom;
@@ -41,21 +37,12 @@ public class UDPUS {
 		newThread();
 	}
 
-	public JsonObject updateItem() {
-		JsonObject json = new JsonObject();
-		return json;
-	}
-
-	public void setPostion(JsonObject json) {
-
-	}
-
 	private void newThread() {
 		sendTh = new Thread(sendRunnable);
-		reciveTh = new Thread(reciveRunnable);
+		reciveTh = new Thread(receiveRunnable);
 	}
 
-	public void runReciveThread() {
+	public void runReceiveThread() {
 		reciveTh.start();
 	}
 
@@ -67,18 +54,14 @@ public class UDPUS {
 		byte buff[] = new byte[Constants.UDP_PACKET_LENGTH];
 		sendByteArr = new byte[Constants.UDP_PACKET_LENGTH];
 		try {
-			multiGroup = InetAddress.getByName(Constants.MULTI_BROADCAST_IP);
-			myAddress = InetAddress.getByName(Constants.SERVER_IP);
+			InetAddress multiGroup = InetAddress.getByName(Constants.MULTI_BROADCAST_IP);
+			InetAddress myAddress = InetAddress.getByName(Constants.SERVER_IP);
 			sendSocket = new DatagramSocket();
 			sendPacket = new DatagramPacket(sendByteArr, Constants.UDP_PACKET_LENGTH, myAddress,
 					Constants.UDP_PORT);
 			reciveMultiPacket = new DatagramPacket(buff, Constants.UDP_PACKET_LENGTH);
 			reciveMultiSocket = new MulticastSocket(Constants.MULTI_BROADCAST_PORT);
 			reciveMultiSocket.joinGroup(multiGroup);
-		} catch (UnknownHostException e) {
-			e.printStackTrace();
-		} catch (SocketException e) {
-			e.printStackTrace();
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
@@ -90,14 +73,13 @@ public class UDPUS {
 		return s;
 	}
 
-	Runnable reciveRunnable = new Runnable() {
+	Runnable receiveRunnable = new Runnable() {
 		byte[] b;
 		String s;
 
 		@Override
 		public void run() {
 			while (true) {
-
 				try {
 					reciveMultiSocket.receive(reciveMultiPacket);
 					b = reciveMultiPacket.getData();
@@ -106,9 +88,7 @@ public class UDPUS {
 					dom.downloadCharacter(s);
 
 					Thread.sleep(50);
-				} catch (IOException e) {
-					e.printStackTrace();
-				} catch (InterruptedException e) {
+				} catch (IOException | InterruptedException e) {
 					e.printStackTrace();
 				}
 			}
@@ -125,9 +105,8 @@ public class UDPUS {
 		@Override
 		public void run() {
 			while (true) {
-
 				Arrays.fill(sendByteArr, (byte) 0);
-				character = dom.updateMyPosition();
+				sprite.Character character = dom.updateMyPosition();
 				tempID = character.getID();
 				tempFaceTo = character.getDirection();
 				tempY = character.getY();
@@ -135,15 +114,11 @@ public class UDPUS {
 				myData = new OneGamer(tempID, tempX, tempY, tempFaceTo);
 				String tempS = new Gson().toJson(myData);
 				byte[] bytes = tempS.getBytes(StandardCharsets.UTF_8);
-				for (int i = 0; i < bytes.length; i++) {
-					sendByteArr[i] = bytes[i];
-				}
+				System.arraycopy(bytes, 0, sendByteArr, 0, bytes.length);
 				try {
 					sendSocket.send(sendPacket);
 					Thread.sleep(50);
-				} catch (IOException e) {
-					e.printStackTrace();
-				} catch (InterruptedException e) {
+				} catch (IOException | InterruptedException e) {
 					e.printStackTrace();
 				}
 			}
