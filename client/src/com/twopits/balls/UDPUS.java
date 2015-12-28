@@ -21,10 +21,10 @@ import dom.DynamicObjectModule;
 public class UDPUS {
 
 	private DatagramPacket sendPacket;
-	private DatagramPacket reciveMultiPacket;
+	private DatagramPacket receiveMultiPacket;
 	private DatagramSocket sendSocket;
-	private MulticastSocket reciveMultiSocket;
-	private Thread sendTh, reciveTh;
+	private MulticastSocket receiveMultiSocket;
+	private Thread sendThread, receiveThread;
 	private byte[] sendByteArr;
 	private DynamicObjectModule dom;
 
@@ -38,16 +38,16 @@ public class UDPUS {
 	}
 
 	private void newThread() {
-		sendTh = new Thread(sendRunnable);
-		reciveTh = new Thread(receiveRunnable);
+		sendThread = new Thread(sendRunnable);
+		receiveThread = new Thread(receiveRunnable);
 	}
 
 	public void runReceiveThread() {
-		reciveTh.start();
+		receiveThread.start();
 	}
 
 	public void runSendThread() {
-		sendTh.start();
+		sendThread.start();
 	}
 
 	private void createSocket() {
@@ -59,9 +59,9 @@ public class UDPUS {
 			sendSocket = new DatagramSocket();
 			sendPacket = new DatagramPacket(sendByteArr, Constants.UDP_PACKET_LENGTH, myAddress,
 					Constants.UDP_PORT);
-			reciveMultiPacket = new DatagramPacket(buff, Constants.UDP_PACKET_LENGTH);
-			reciveMultiSocket = new MulticastSocket(Constants.MULTI_BROADCAST_PORT);
-			reciveMultiSocket.joinGroup(multiGroup);
+			receiveMultiPacket = new DatagramPacket(buff, Constants.UDP_PACKET_LENGTH);
+			receiveMultiSocket = new MulticastSocket(Constants.MULTI_BROADCAST_PORT);
+			receiveMultiSocket.joinGroup(multiGroup);
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
@@ -81,8 +81,8 @@ public class UDPUS {
 		public void run() {
 			while (true) {
 				try {
-					reciveMultiSocket.receive(reciveMultiPacket);
-					b = reciveMultiPacket.getData();
+					receiveMultiSocket.receive(receiveMultiPacket);
+					b = receiveMultiPacket.getData();
 					s = decode(b);
 					s = s.trim();
 					dom.downloadCharacter(s);
