@@ -16,10 +16,6 @@ public class RenderThread extends Thread {
 		mRenderEngine = renderEngine;
 	}
 
-	public void startRenderThread() {
-		this.start();
-	}
-
 	public float getCurrentFPS() {
 		return 1000 / (mSmoothedDt + mSleepDuration);
 	}
