@@ -24,7 +24,7 @@ public class UDPUS {
     private final int PORT = 45368;
     private final int MULTIBORADCASTPORT = 45369;
     private final String MULTIBORADCASTIP = "239.255.255.255";
-    private final String MYCLIENTIP = "140.115.155.97";
+    private final String MYCLIENTIP = "140.115.155.92";
     private final int PACKETLENGTH = 1000;
 
     private DatagramPacket sendPacket;

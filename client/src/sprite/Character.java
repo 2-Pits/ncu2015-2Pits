@@ -60,6 +60,12 @@ public class Character{
        // incFrame();
     }
 
+    public void setPosition(double x, double y,int dir){
+        setPosition(x,y);
+        setDirection(dir);
+        update(20);
+    }
+
     public double getX(){
         return this.x;
     }

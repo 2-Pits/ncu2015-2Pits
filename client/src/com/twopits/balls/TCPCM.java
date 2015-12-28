@@ -23,7 +23,7 @@ import sprite.Character;
 public class TCPCM {
 
     private final int PORT = 5278;
-    private final String IP = "140.115.155.97";
+    private final String IP = "140.115.155.92";
 
     private DynamicObjectModule dom;
     private App app;
