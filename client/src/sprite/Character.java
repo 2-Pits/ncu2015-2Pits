@@ -109,11 +109,7 @@ public class Character{
     }
 
     public boolean checkMove(){
-        if(last_x != x || last_y != y)
-            isMove = true;
-        else
-            isMove = false;
-        return isMove;
+        return (last_x != x || last_y != y);
     }
 
     public void stop(){
