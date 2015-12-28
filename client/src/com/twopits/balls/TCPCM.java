@@ -180,6 +180,8 @@ public class TCPCM {
                         //If winner showup, then close connection and show winner.
                         System.out.println("Winner is : " + s + "\n");
                         stopConnection();
+                        dom.endGame(s);
+                        break;
                     }
                     gball = br.readLine();
                     System.out.println(gball);
