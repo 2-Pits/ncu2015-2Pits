@@ -22,132 +22,131 @@ import dom.DynamicObjectModule;
  */
 public class UDPUS {
 
+	private DatagramPacket sendPacket;
+	private DatagramPacket reciveMultiPacket;
+	private DatagramSocket sendSocket;
+	private MulticastSocket reciveMultiSocket;
+	private Thread sendTh, reciveTh;
+	private InetAddress multiGroup, myAddress;
+	private byte[] sendByteArr;
+	private DynamicObjectModule dom;
+	private sprite.Character character;
 
+	public UDPUS(DynamicObjectModule dom) {
+		this.dom = dom;
+	}
 
-    private DatagramPacket sendPacket;
-    private DatagramPacket reciveMultiPacket;
-    private DatagramSocket sendSocket;
-    private MulticastSocket reciveMultiSocket;
-    private Thread sendTh, reciveTh;
-    private InetAddress multiGroup, myAddress;
-    private byte[] sendByteArr;
-    private DynamicObjectModule dom;
-    private sprite.Character character;
+	public void iniUDPServer() {
+		createSocket();
+		newThread();
+	}
 
-    public UDPUS(DynamicObjectModule dom) {
-        this.dom = dom;
-    }
+	public JsonObject updateItem() {
+		JsonObject json = new JsonObject();
+		return json;
+	}
 
-    public void iniUDPServer() {
-        createSocket();
-        newThread();
-    }
+	public void setPostion(JsonObject json) {
 
-    public JsonObject updateItem() {
-        JsonObject json = new JsonObject();
-        return json;
-    }
+	}
 
-    public void setPostion(JsonObject json) {
+	private void newThread() {
+		sendTh = new Thread(sendRunnable);
+		reciveTh = new Thread(reciveRunnable);
+	}
 
-    }
+	public void runReciveThread() {
+		reciveTh.start();
+	}
 
-    private void newThread() {
-        sendTh = new Thread(sendRunnable);
-        reciveTh = new Thread(reciveRunnable);
-    }
+	public void runSendThread() {
+		sendTh.start();
+	}
 
-    public void runReciveThread() {
-        reciveTh.start();
-    }
+	private void createSocket() {
+		byte buff[] = new byte[Constants.UDP_PACKET_LENGTH];
+		sendByteArr = new byte[Constants.UDP_PACKET_LENGTH];
+		try {
+			multiGroup = InetAddress.getByName(Constants.MULTI_BROADCAST_IP);
+			myAddress = InetAddress.getByName(Constants.SERVER_IP);
+			sendSocket = new DatagramSocket();
+			sendPacket = new DatagramPacket(sendByteArr, Constants.UDP_PACKET_LENGTH, myAddress,
+					Constants.UDP_PORT);
+			reciveMultiPacket = new DatagramPacket(buff, Constants.UDP_PACKET_LENGTH);
+			reciveMultiSocket = new MulticastSocket(Constants.MULTI_BROADCAST_PORT);
+			reciveMultiSocket.joinGroup(multiGroup);
+		} catch (UnknownHostException e) {
+			e.printStackTrace();
+		} catch (SocketException e) {
+			e.printStackTrace();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+	}
 
-    public void runSendThread() {
-        sendTh.start();
-    }
+	private String decode(byte[] b) {
+		String s;
+		s = new String(b);
+		return s;
+	}
 
-    private void createSocket() {
-        byte buff[] = new byte[Constants.PACKETLENGTH];
-        sendByteArr = new byte[Constants.PACKETLENGTH];
-        try {
-            multiGroup = InetAddress.getByName(Constants.MULTIBORADCASTIP);
-            myAddress = InetAddress.getByName(Constants.SERVERIP);
-            sendSocket = new DatagramSocket();
-            sendPacket = new DatagramPacket(sendByteArr, Constants.PACKETLENGTH, myAddress, Constants.PORT);
-            reciveMultiPacket = new DatagramPacket(buff, Constants.PACKETLENGTH);
-            reciveMultiSocket = new MulticastSocket(Constants.MULTIBORADCASTPORT);
-            reciveMultiSocket.joinGroup(multiGroup);
-        } catch (UnknownHostException e) {
-            e.printStackTrace();
-        } catch (SocketException e) {
-            e.printStackTrace();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-    }
+	Runnable reciveRunnable = new Runnable() {
+		byte[] b;
+		String s;
 
-    private String decode(byte[] b) {
-        String s;
-        s = new String(b);
-        return s;
-    }
+		@Override
+		public void run() {
+			while (true) {
 
-    Runnable reciveRunnable = new Runnable() {
-        byte[] b;
-        String s;
+				try {
+					reciveMultiSocket.receive(reciveMultiPacket);
+					b = reciveMultiPacket.getData();
+					s = decode(b);
+					s = s.trim();
+					dom.downloadCharacter(s);
 
-        @Override
-        public void run() {
-            while (true) {
+					Thread.sleep(50);
+				} catch (IOException e) {
+					e.printStackTrace();
+				} catch (InterruptedException e) {
+					e.printStackTrace();
+				}
+			}
+		}
+	};
 
-                try {
-                    reciveMultiSocket.receive(reciveMultiPacket);
-                    b = reciveMultiPacket.getData();
-                    s = decode(b);
-                    s = s.trim();
-                    dom.downloadCharacter(s);
+	Runnable sendRunnable = new Runnable() {
+		int tempID = 0;
+		int tempFaceTo = 0;
+		double tempX = 0;
+		double tempY = 0;
+		OneGamer myData;
 
-                    Thread.sleep(50);
-                } catch (IOException e) {
-                    e.printStackTrace();
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
-                }
-            }
-        }
-    };
+		@Override
+		public void run() {
+			while (true) {
 
-    Runnable sendRunnable = new Runnable() {
-        int tempID = 0;
-        int tempFaceTo = 0;
-        double tempX = 0;
-        double tempY = 0;
-        OneGamer myData;
-
-        @Override
-        public void run() {
-            while (true) {
-
-                Arrays.fill(sendByteArr, (byte) 0);
-                character = dom.updateMyPosition();
-                tempID = character.getID();
-                tempFaceTo = character.getDirection();
-                tempY = character.getY();
-                tempX = character.getX();
-                myData = new OneGamer(tempID, tempX, tempY, tempFaceTo);
-                String tempS = new Gson().toJson(myData);
-                byte[] bytes = tempS.getBytes(StandardCharsets.UTF_8);
-                for (int i = 0; i < bytes.length; i++) {
-                    sendByteArr[i] = bytes[i];
-                }
-                try {
-                    sendSocket.send(sendPacket);
-                    Thread.sleep(50);
-                } catch (IOException e) {
-                    e.printStackTrace();
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
-                }
-            }
-        }
-    };
+				Arrays.fill(sendByteArr, (byte) 0);
+				character = dom.updateMyPosition();
+				tempID = character.getID();
+				tempFaceTo = character.getDirection();
+				tempY = character.getY();
+				tempX = character.getX();
+				myData = new OneGamer(tempID, tempX, tempY, tempFaceTo);
+				String tempS = new Gson().toJson(myData);
+				byte[] bytes = tempS.getBytes(StandardCharsets.UTF_8);
+				for (int i = 0; i < bytes.length; i++) {
+					sendByteArr[i] = bytes[i];
+				}
+				try {
+					sendSocket.send(sendPacket);
+					Thread.sleep(50);
+				} catch (IOException e) {
+					e.printStackTrace();
+				} catch (InterruptedException e) {
+					e.printStackTrace();
+				}
+			}
+		}
+	};
 }
