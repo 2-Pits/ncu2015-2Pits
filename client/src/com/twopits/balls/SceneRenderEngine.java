@@ -301,15 +301,14 @@ public class SceneRenderEngine extends JPanel {
 						new BasicStroke(2f * zoom, BasicStroke.CAP_ROUND, BasicStroke.JOIN_MITER,
 								2f * zoom, new float[]{6f * zoom}, 0f));
 			} else {
-				g2d.setColor(Color.BLACK);
-				g2d.setColor(new Color(0x66ffffff, true));
-				g2d.fillOval((int) (posX + (int) (ballRadius * .2f)),
-						drawRectanglePositionY - (int) (ballRadius * .6f), (int) (ballRadius * .4f),
-						(int) (ballRadius * .4f));
 				g2d.setColor(new Color(ball.getBallColor()));
 				g2d.fillOval((int) (posX + ballRectPadding),
 						(int) (drawRectanglePositionY + ballRectPadding), 2 * ballRadius,
 						2 * ballRadius);
+				g2d.setColor(new Color(0x66ffffff, true));
+				g2d.fillOval((int) (posX + ballRectPadding + ballRadius * 1.2f),
+						(int) (drawRectanglePositionY + ballRectPadding + ballRadius * .4f),
+						(int) (ballRadius * .4f), (int) (ballRadius * .4f));
 				g2d.setStroke(new BasicStroke(2 * zoom));
 			}
 			g2d.setColor(Color.BLACK);
