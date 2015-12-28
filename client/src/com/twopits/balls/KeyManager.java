@@ -13,7 +13,7 @@ public class KeyManager implements KeyListener {
 	private List<Integer> mPressedKeys;
 
 	public KeyManager() {
-		mPressedKeys = new ArrayList<>();
+		mPressedKeys = new ArrayList<Integer>();
 	}
 
 	public boolean isKeyPressed(int keyCode) {

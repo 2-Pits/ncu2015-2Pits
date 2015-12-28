@@ -46,20 +46,20 @@ public class TCPCM {
         }
     }
 
-    //µ¥«Ýªì©l«ü¥O
+    //ï¿½ï¿½ï¿½Ýªï¿½lï¿½ï¿½ï¿½O
     public void startrecieveInitThread(){
 
     }
-    //µ¥«Ý¶}©l¹CÀ¸
+    //ï¿½ï¿½ï¿½Ý¶}ï¿½lï¿½Cï¿½ï¿½
     public void startrecieveStartGameThread(){
 
     }
-    //½Ð¨DGetBall«ü¥O
+    //ï¿½Ð¨DGetBallï¿½ï¿½ï¿½O
 
     public void requestGetBall(String s){
 
     }
-    //±µ¦¬²yª¬ºA
+    //ï¿½ï¿½ï¿½ï¿½ï¿½yï¿½ï¿½ï¿½A
     public void startUpdateRecieveBallStatus(){
 
     }
@@ -106,6 +106,13 @@ public class TCPCM {
 
     }
 
+    private void stopConnection() throws IOException{
+        if(socket != null) socket = null;
+        if(in != null) in.close();
+        if(out != null) out.close();
+
+    }
+
     Runnable send = new Runnable() {
         @Override
         public void run() {
@@ -142,6 +149,21 @@ public class TCPCM {
             } else {
 
                 while (!isStop) {
+                    String s;
+                    String gball;
+                    try {
+                        s = br.readLine();
+                        if(Integer.valueOf(s) != -1){
+                            //If winner showup, then close connection and show winner.
+                            System.out.println("Winner is : " + s + "\n");
+                            stopConnection();
+                        }
+                        gball = br.readLine();
+                        System.out.println(gball);
+                        dom.updateBall(gball);
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
 
                 }
             }

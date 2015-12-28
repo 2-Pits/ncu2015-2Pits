@@ -7,14 +7,13 @@ import com.twopits.balls.models.IntegerPosition;
 import dom.DynamicObjectModule;
 import sprite.Character;
 
+import javax.swing.*;
 import java.awt.*;
 import java.awt.event.KeyEvent;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
-
-import javax.swing.JPanel;
 
 /**
  * Screen & world map rendering
@@ -91,7 +90,7 @@ public class SceneRenderEngine extends JPanel {
         String[] names = {"Q", "W", "E", "R"};
         int[] codes = {KeyEvent.VK_Q, KeyEvent.VK_W, KeyEvent.VK_E, KeyEvent.VK_R};
 
-        Map<Integer, ItemRectangle> rectangles = new HashMap<>();
+        Map<Integer, ItemRectangle> rectangles = new HashMap<Integer, ItemRectangle>();
         for (int i = 0; i < 4; i++) {
             Rectangle rectangle = new Rectangle();
             rectangles.put(codes[i], new ItemRectangle(rectangle, names[i], i));
