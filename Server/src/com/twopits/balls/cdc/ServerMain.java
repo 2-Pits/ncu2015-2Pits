@@ -9,6 +9,7 @@ public class ServerMain {
     CentralizedDataCenter cdc;
     UDPBC udpbc;
     RoomSettingThread roomSettingThread;
+    JudgeThread judgeThread;
     public static void main(String[] args) {
         new ServerMain();
     }
@@ -18,8 +19,9 @@ public class ServerMain {
             JFrame window = new JFrame();
             cdc = new CentralizedDataCenter();
             udpbc = new UDPBC(cdc);
-            roomSettingThread = new RoomSettingThread(cdc, udpbc);
+            roomSettingThread = new RoomSettingThread(cdc, udpbc,judgeThread);
             roomSettingThread.startRoomSettingThread();
+            judgeThread = new JudgeThread(cdc);
        //     TCPBall tcpServer = new TCPBall(cdc);
        //     tcpServer.initTCPServer();
         //    cdc.addPlayer();

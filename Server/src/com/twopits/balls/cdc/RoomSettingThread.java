@@ -21,11 +21,16 @@ public class RoomSettingThread  extends Thread  { // Waiting for four Ch
     Vector<Socket> skvector;
     CentralizedDataCenter cdc;
     UDPBC udpbc;
-    public RoomSettingThread(CentralizedDataCenter cdc,UDPBC udpbc){
+    JudgeThread judgeThread;
+    public RoomSettingThread(CentralizedDataCenter cdc,UDPBC udpbc,JudgeThread judgeThread){
         this.cdc=cdc;
         this.udpbc = udpbc;
+        this.judgeThread=judgeThread;
         ipvector=new Vector<InetAddress>();
         skvector=new  Vector<Socket>();
+    }
+    public Vector<Socket> getskvector(){
+        return skvector;
     }
     public long getCurrentSleepDuration() {
         return mSleepDuration;
@@ -33,9 +38,7 @@ public class RoomSettingThread  extends Thread  { // Waiting for four Ch
     public void startRoomSettingThread() {
         this.start();
     }
-    public void sendBallStatus() {
-        this.start();
-    }
+
     @Override
     public void run() {
         super.run();
@@ -85,7 +88,9 @@ public class RoomSettingThread  extends Thread  { // Waiting for four Ch
                 s = new Gson().toJson(cdc.getBallMap());
                 bytes = s.getBytes(StandardCharsets.UTF_8);
                 os.write(bytes);// 送訊息到 Client 端。
+                os.flush();
                 os.write('\n');// 送訊息到 Client 端。
+                os.flush();
 
             } catch (IOException e) {
                 e.printStackTrace();
@@ -103,5 +108,7 @@ public class RoomSettingThread  extends Thread  { // Waiting for four Ch
                 e.printStackTrace();
             }
         }
+        judgeThread.setVector(skvector);
+        judgeThread.startJudgThread();
     }
 }

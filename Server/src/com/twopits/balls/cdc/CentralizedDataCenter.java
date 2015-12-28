@@ -1,7 +1,6 @@
 package com.twopits.balls.cdc;
 
-import java.util.Random;
-import java.util.Vector;
+import java.util.*;
 
 /**
  * Created by Lenovo on 2015/12/18.
@@ -10,9 +9,14 @@ public class CentralizedDataCenter implements CentralizedDataCenterInterface {
 
     private Vector<Player> playerMap;
     private BallMap ballMap;
+    private Queue<KeyOpt> optQueue;
     public CentralizedDataCenter(){
         playerMap = new Vector<Player>();
         ballMap = new BallMap();
+        optQueue=new LinkedList<KeyOpt>();
+    }
+    public Queue<KeyOpt> getOptQueue(){
+        return optQueue;
     }
     public Vector getPlayerMap(){
         return playerMap;
@@ -59,5 +63,4 @@ public class CentralizedDataCenter implements CentralizedDataCenterInterface {
         }
         return null;
     }
-
 }

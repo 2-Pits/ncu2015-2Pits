@@ -37,4 +37,19 @@ public class BallMap {
             item[i/4][i%4]=0;
         }
     }
+    public int winnerScan(){
+        for(int i=0;i<4;i++){
+            if(item[i][0]>0){
+                if(item[i][0]==item[i][1]&&item[i][0]==item[i][2]&&item[i][0]==item[i][3]){
+                    return i;
+                }
+            }
+        }
+        return -1;
+    }
+    public void exchangeBall(int ID,int keycode,int x,int y){
+        int temp=item[ID][keycode];
+        item[ID][keycode]=court[x][y];
+        court[x][y]=temp;
+    }
 }
