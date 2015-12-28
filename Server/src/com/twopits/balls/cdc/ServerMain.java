@@ -15,19 +15,11 @@ public class ServerMain {
     }
     public ServerMain() {
         try {
-
-            JFrame window = new JFrame();
             cdc = new CentralizedDataCenter();
             udpbc = new UDPBC(cdc);
+            judgeThread = new JudgeThread(cdc);
             roomSettingThread = new RoomSettingThread(cdc, udpbc,judgeThread);
             roomSettingThread.startRoomSettingThread();
-            judgeThread = new JudgeThread(cdc);
-       //     TCPBall tcpServer = new TCPBall(cdc);
-       //     tcpServer.initTCPServer();
-        //    cdc.addPlayer();
-        //    cdc.addPlayer();
-        //    cdc.addPlayer();
-         //   cdc.addPlayer();
         }catch(Exception e){
             e.printStackTrace();
         }
