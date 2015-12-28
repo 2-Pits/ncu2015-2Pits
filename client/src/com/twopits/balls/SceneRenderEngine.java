@@ -100,7 +100,7 @@ public class SceneRenderEngine extends JPanel {
 		String[] names = {"Q", "W", "E", "R"};
 		int[] codes = {KeyEvent.VK_Q, KeyEvent.VK_W, KeyEvent.VK_E, KeyEvent.VK_R};
 
-		Map<Integer, ItemRectangle> rectangles = new HashMap<Integer, ItemRectangle>();
+		Map<Integer, ItemRectangle> rectangles = new HashMap<>();
 		for (int i = 0; i < 4; i++) {
 			Rectangle rectangle = new Rectangle();
 			rectangles.put(codes[i], new ItemRectangle(rectangle, names[i], i));
