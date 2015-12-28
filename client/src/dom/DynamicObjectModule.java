@@ -73,6 +73,7 @@ public class DynamicObjectModule implements DOMInterface{
         }
         for (int i = 0; i < other.size(); i++) {
             other.get(i).setPosition(gamers[other.get(i).getID()].getX(), gamers[other.get(i).getID()].getY());
+            other.get(i).setDirection(gamers[other.get(i).getID()].getDir());
         }
 
     }

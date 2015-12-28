@@ -4,6 +4,8 @@ import com.google.gson.Gson;
 import com.twopits.balls.libs.KeyOpt;
 import com.twopits.balls.libs.OneGamer;
 import dom.DynamicObjectModule;
+import sprite.*;
+import sprite.Character;
 
 import java.io.*;
 import java.net.InetAddress;
@@ -49,34 +51,36 @@ public class TCPCM {
     }
 
     //���ݪ�l���O
-    public void startrecieveInitThread(){
+    public void startrecieveInitThread() {
 
     }
+
     //���ݶ}�l�C��
-    public void startrecieveStartGameThread(){
+    public void startrecieveStartGameThread() {
 
     }
     //�ШDGetBall���O
 
-    public void requestGetBall(String s){
+    public void requestGetBall(String s) {
 
     }
+
     //�����y���A
-    public void startUpdateRecieveBallStatus(){
+    public void startUpdateRecieveBallStatus() {
 
     }
 
     public void pickUpBalls(int keyCode) {
-        sprite.Character character = dom.getMyCharacter();
+        System.out.println("click");
+        Character character = dom.getMyCharacter();
         int ID = character.getID();
         KeyOpt myData = new KeyOpt(ID, keyCode);
         String tempS = new Gson().toJson(myData);
-        byte[] bytes = tempS.getBytes(StandardCharsets.UTF_8);
-        try {
-            out.write(bytes);
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+//        byte[] bytes = tempS.getBytes(StandardCharsets.UTF_8);
+        PrintWriter printWriter = new PrintWriter(out);
+
+        printWriter.print(tempS + "\n");
+        printWriter.flush();
     }
 
     private void createThread() {
@@ -107,7 +111,6 @@ public class TCPCM {
     }
 
 
-
     private void initAll() {
         try {
             in = socket.getInputStream();
@@ -121,10 +124,10 @@ public class TCPCM {
 
     }
 
-    private void stopConnection() throws IOException{
-        if(socket != null) socket = null;
-        if(in != null) in.close();
-        if(out != null) out.close();
+    private void stopConnection() throws IOException {
+        if (socket != null) socket = null;
+        if (in != null) in.close();
+        if (out != null) out.close();
 
     }
 
@@ -145,14 +148,14 @@ public class TCPCM {
         @Override
         public void run() {
 
-            if (!isStart) {
+            if (!dom.startMove()) {
                 try {
                     while (clientCount <= 4) {
                         clientCount = br.read();
                         System.out.println("Client Count = " + clientCount);
                         if (clientCount == 4) {
                             app.getRenderThread().start();
-                            isStart = true;
+                            dom.startGame();
                             break;
                         }
 
@@ -161,27 +164,28 @@ public class TCPCM {
                     e.printStackTrace();
                 }
 
-            } else {
-
-                while (!isStop) {
-                    String s;
-                    String gball;
-                    try {
-                        s = br.readLine();
-                        if(Integer.valueOf(s) != -1){
-                            //If winner showup, then close connection and show winner.
-                            System.out.println("Winner is : " + s + "\n");
-                            stopConnection();
-                        }
-                        gball = br.readLine();
-                        System.out.println(gball);
-                        dom.updateBall(gball);
-                    } catch (IOException e) {
-                        e.printStackTrace();
-                    }
-
-                }
             }
+
+            while (dom.startMove()) {
+                System.out.println("enter");
+                String s;
+                String gball;
+                try {
+                    s = br.readLine();
+                    if (Integer.valueOf(s) != -1) {
+                        //If winner showup, then close connection and show winner.
+                        System.out.println("Winner is : " + s + "\n");
+                        stopConnection();
+                    }
+                    gball = br.readLine();
+                    System.out.println(gball);
+                    dom.updateBall(gball);
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+
+            }
+
 
         }
     };

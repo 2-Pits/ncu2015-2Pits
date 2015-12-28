@@ -120,14 +120,14 @@ public class SceneRenderEngine extends JPanel {
     public void update(long dt) {
         updatePlayerPosition(dt);
         updateItemRenctangle();
-        updatePlayer((int) dt);
+        updatePlayerSprite((int) dt);
         repaint();
     }
 
-    private void updatePlayer(int dt){
+    private void updatePlayerSprite(int dt) {
         myCharacter.update(dt);
         ArrayList<Character> otherCharacters = dom.getOtherCharacter();
-        for(Character character : otherCharacters){
+        for (Character character : otherCharacters) {
             character.update(dt);
         }
     }
@@ -273,9 +273,10 @@ public class SceneRenderEngine extends JPanel {
         int padding = (int) (5 * zoom);
         int drawRectanglePositionX = this.getWidth() - 4 * rectangleSize - padding * 4;
         int drawRectanglePositionY = this.getHeight() - rectangleSize - padding;
+        int ballRadius = (int) (BALL_RADIUS * zoom);
+        int roomRadius = (int) (BLOCK_SIZE * zoom / 2f);
 
-        //PADDING * (i+1) + i*100+150, PADDING, BUTTON_WIDTH, BUTTON_HEIGHT
-        // Travel the shapMap
+        // Travel the shapeMap
         for (ItemRectangle item : mRectangleMap.values()) {
             Rectangle rectangle = item.getRectangle();
 
@@ -285,7 +286,23 @@ public class SceneRenderEngine extends JPanel {
             g2d.fill(item.getRectangle());
             g2d.setColor(Color.black);
             g2d.drawString(item.getShapeName(), (float) posX + padding / 2, drawRectanglePositionY + rectangleSize - padding / 2);
+
+            //draw ball
+            ArrayList<BallModel> qwerBall = dom.getQWERState();
+
+            g2d.setColor(new Color(qwerBall.get(item.getIndex()).getBallColor()));
+            g2d.fillOval((int) posX, drawRectanglePositionY, 2 * ballRadius,
+                    2 * ballRadius);
+            g2d.setColor(Color.BLACK);
+            g2d.setStroke(new BasicStroke(2 * zoom));
+            g2d.drawOval((int) posX, drawRectanglePositionY, 2 * ballRadius,
+                    2 * ballRadius);
+            g2d.setColor(new Color(0x66ffffff, true));
+            g2d.fillOval((int) (posX + roomRadius + (int) (ballRadius * .2f)),
+                    drawRectanglePositionY + roomRadius - (int) (ballRadius * .6f),
+                    (int) (ballRadius * .4f), (int) (ballRadius * .4f));
         }
+
     }
 
     @SuppressWarnings("SuspiciousNameCombination")
