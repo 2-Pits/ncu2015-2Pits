@@ -51,12 +51,12 @@ public class RoomSettingThread  extends Thread  { // Waiting for four Ch
         } catch (IOException e) {
             e.printStackTrace();
         }
-        System.out.println("TCPCon Thread");
+        //System.out.println("TCPCon Thread");
 
         while (true) {
-            System.out.println(skvector.size());
+           // System.out.println(skvector.size());
             for(int i=0;i<skvector.size();i++) {
-                System.out.println(skvector.elementAt(i).getInetAddress());
+              //  System.out.println(skvector.elementAt(i).getInetAddress());
                 try {
                     skvector.elementAt(i).getOutputStream().write(skvector.size());
                     skvector.elementAt(i).getOutputStream().flush();
@@ -72,7 +72,7 @@ public class RoomSettingThread  extends Thread  { // Waiting for four Ch
             } catch (IOException e) {
                 e.printStackTrace();
             }
-            System.out.println("Waiting!!");
+           // System.out.println("Waiting!!");
             OutputStream os = null;    // 取得輸出串流。
             try {
                 os = sc.getOutputStream();
@@ -82,7 +82,7 @@ public class RoomSettingThread  extends Thread  { // Waiting for four Ch
             String s="";
             s = new Gson().toJson(cdc.addPlayer());
             byte[] bytes = s.getBytes(StandardCharsets.UTF_8);
-            System.out.println(s);
+         //   System.out.println(s);
             try {
                 os.write(bytes);// 送訊息到 Client 端。
                 os.flush();
@@ -100,7 +100,8 @@ public class RoomSettingThread  extends Thread  { // Waiting for four Ch
             }
             if (cdc.getPlayerMapCount() == 4) break;
         }
-        System.out.println(cdc.getPlayerMapCount());
+      //  System.out.println(cdc.getPlayerMapCount());
+        udpbc.setClientIP(ipvector);
         udpbc.startUDPBroadCast();
         udpbc.runSendThread();
         udpbc.runRecieveThread();
