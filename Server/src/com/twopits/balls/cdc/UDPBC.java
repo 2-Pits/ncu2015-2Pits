@@ -20,12 +20,13 @@ public class UDPBC {
     private final int PACKETLENGTH = 1000;
 
     private DatagramPacket recivePacket;
-    private DatagramPacket sendMultiPacket;
+    private DatagramPacket sendMultiPacket[] =new DatagramPacket[CLIENTCOUNT];
     private DatagramSocket reciveSocket;
-    private MulticastSocket sendMultiSocket;
+    private DatagramSocket sendMultiSocket;
     private Thread sendTh, reciveTh;
     private InetAddress multiGroup;
     private Vector<Player> allPlayerMap = new Vector<Player>();
+    private Vector<InetAddress> ipTable = new Vector<InetAddress>();
     private byte[] sendByteArr;
     private int[] client_ID;
     private int[] diration;
@@ -72,21 +73,39 @@ public class UDPBC {
         position_Y = new double[CLIENTCOUNT];
         diration = new int[CLIENTCOUNT];
         allPlayerMap = new Vector<Player>();
+
+    }
+
+    public void setClientIP(Vector<InetAddress> ip){
+        ipTable = ip;
+
     }
 
     private void createSocket() {
         byte[] buff = new byte[PACKETLENGTH];
         sendByteArr = new byte[PACKETLENGTH];
         try {
-            multiGroup = InetAddress.getByName(MULTIBORADCASTIP);
-            sendMultiSocket = new MulticastSocket(MULTIBORADCASTPORT);
-            sendMultiPacket = new DatagramPacket(sendByteArr, PACKETLENGTH, multiGroup, MULTIBORADCASTPORT);
+//            multiGroup = InetAddress.getByName(MULTIBORADCASTIP);
+            sendMultiSocket = new DatagramSocket();
+            sendMultiSocket.setBroadcast(true);
+            for(int i=0;i<4;i++){
+                //System.out.println(ipTable.elementAt(i));
+                sendMultiPacket[i] = new DatagramPacket(sendByteArr,PACKETLENGTH,ipTable.elementAt(i)
+                        ,MULTIBORADCASTPORT);
+            }
+//            sendMultiSocket.joinGroup(multiGroup);
+//            sendMultiPacket = new DatagramPacket(sendByteArr, PACKETLENGTH);
+//            sendMultiPacket.setPort(MULTIBORADCASTPORT);
+//            sendMultiPacket.setAddress(multiGroup);
+
             reciveSocket = new DatagramSocket(PORT);
             recivePacket = new DatagramPacket(buff, PACKETLENGTH);
 
-        } catch (UnknownHostException e) {
-            e.printStackTrace();
-        } catch (IOException e) {
+        }
+//        catch (UnknownHostException e) {
+//            e.printStackTrace();
+//        }
+        catch (IOException e) {
             e.printStackTrace();
         }
     }
@@ -98,6 +117,8 @@ public class UDPBC {
 
         @Override
         public void run() {
+
+
             while (true) {
                 try {
                     reciveSocket.receive(recivePacket);
@@ -123,6 +144,8 @@ public class UDPBC {
     Runnable sendRunnable = new Runnable() {
         @Override
         public void run() {
+
+
             while (true) {
                 Arrays.fill(sendByteArr,(byte)0);
                 allPlayerMap =cdc.getPlayerMap();
@@ -136,7 +159,11 @@ public class UDPBC {
                 }
 
                 try {
-                    sendMultiSocket.send(sendMultiPacket);
+                    for(int i=0;i<4;i++){
+                        sendMultiSocket.send(sendMultiPacket[i]);
+                       // System.out.println("SEND " + i);
+                    }
+
                  /*   for(Player each : allPlayerMap){
                        // System.out.println(each.getID()+"("+each.getX()+","+each.getY()+")"+" dir:"+each.getDir());
                     }*/
