@@ -21,6 +21,7 @@ public class Character{
     private int speed;
     private int dt = 0;
     private final int FRAME_TIME = 150;
+    private static final String IMAGES[] = {"res/Man1.png","res/Man2.png","res/Man3.png","res/Man4.png"};
 
     public Character(int id, double x, double y){
         setID(id);
@@ -35,7 +36,6 @@ public class Character{
         this.frame = dir;
     }
 
-
     public void update(int dt){
         this.dt += dt;
         while (this.dt >= FRAME_TIME){
@@ -48,7 +48,7 @@ public class Character{
         last_x = x;
         last_y = y;
         isMove = false;
-        loadImage("res/Man1.png");
+        loadImage(IMAGES[ID]);
         setDirection(0);
     }
 
@@ -97,6 +97,7 @@ public class Character{
 
     public void setID(int i){
         this.ID = i;
+        loadImage(IMAGES[ID]);
     }
 
     public int getID(){

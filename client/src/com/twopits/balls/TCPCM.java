@@ -23,7 +23,7 @@ import sprite.Character;
 public class TCPCM {
 
     private final int PORT = 5278;
-    private final String IP = "140.115.155.92";
+    private final String IP = "127.0.0.1";
 
     private DynamicObjectModule dom;
     private App app;
@@ -34,6 +34,8 @@ public class TCPCM {
     private OutputStream out;
     private BufferedReader br;
     private InputStreamReader isr;
+    private int clientCount = 0 ;
+    private boolean isLoading = true;
 
     public TCPCM(App app, DynamicObjectModule dom) {
         this.dom = dom;
@@ -53,6 +55,11 @@ public class TCPCM {
             e.printStackTrace();
         }
     }
+
+    public int getClientCount(){
+        return clientCount;
+    }
+    public void setLoadingStatus(boolean status){ isLoading = status;}
 
     //���ݪ�l���O
     public void startrecieveInitThread() {
@@ -111,7 +118,6 @@ public class TCPCM {
         } catch (IOException e) {
             e.printStackTrace();
         }
-
     }
 
 
@@ -146,7 +152,6 @@ public class TCPCM {
 
         boolean isStart = false;
         boolean isStop = false;
-        int clientCount;
         String s;
 
         @Override
@@ -157,9 +162,7 @@ public class TCPCM {
                     while (clientCount <= 4) {
                         clientCount = br.read();
                         System.out.println("Client Count = " + clientCount);
-                        if (clientCount == 4) {
-                            app.getRenderThread().start();
-                            dom.startGame();
+                        if (!isLoading) {
                             break;
                         }
 
