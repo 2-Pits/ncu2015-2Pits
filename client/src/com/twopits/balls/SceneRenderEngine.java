@@ -4,26 +4,16 @@ import com.twopits.balls.libs.FakeData;
 import com.twopits.balls.libs.Utils;
 import com.twopits.balls.models.BallModel;
 import com.twopits.balls.models.IntegerPosition;
+import dom.DynamicObjectModule;
+import sprite.Character;
 
-import java.awt.BasicStroke;
-import java.awt.Color;
-import java.awt.Font;
-import java.awt.Graphics;
-import java.awt.Graphics2D;
-import java.awt.Image;
-import java.awt.Rectangle;
-import java.awt.RenderingHints;
-import java.awt.Toolkit;
+import javax.swing.*;
+import java.awt.*;
 import java.awt.event.KeyEvent;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
-
-import javax.swing.JPanel;
-
-import dom.DynamicObjectModule;
-import sprite.Character;
 
 /**
  * Screen & world map rendering
@@ -100,7 +90,7 @@ public class SceneRenderEngine extends JPanel {
 		String[] names = {"Q", "W", "E", "R"};
 		int[] codes = {KeyEvent.VK_Q, KeyEvent.VK_W, KeyEvent.VK_E, KeyEvent.VK_R};
 
-		Map<Integer, ItemRectangle> rectangles = new HashMap<>();
+		Map<Integer, ItemRectangle> rectangles = new HashMap<Integer, ItemRectangle>();
 		for (int i = 0; i < 4; i++) {
 			Rectangle rectangle = new Rectangle();
 			rectangles.put(codes[i], new ItemRectangle(rectangle, names[i], i));

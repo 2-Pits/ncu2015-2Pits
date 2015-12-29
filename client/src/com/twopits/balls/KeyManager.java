@@ -16,7 +16,7 @@ public class KeyManager implements KeyListener {
 
 	public KeyManager(TCPCM tcpcm) {
 		this.mTcpcm = tcpcm;
-		mPressedKeys = new ArrayList<>();
+		mPressedKeys = new ArrayList<Integer>();
 	}
 
 	public boolean isKeyPressed(int keyCode) {
