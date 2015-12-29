@@ -23,7 +23,7 @@ public class UDPUS {
 	private DatagramPacket sendPacket;
 	private DatagramPacket receiveMultiPacket;
 	private DatagramSocket sendSocket;
-	private MulticastSocket receiveMultiSocket;
+	private DatagramSocket receiveMultiSocket;
 	private Thread sendThread, receiveThread;
 	private byte[] sendByteArr;
 	private DynamicObjectModule dom;
@@ -55,13 +55,12 @@ public class UDPUS {
 		sendByteArr = new byte[Constants.UDP_PACKET_LENGTH];
 		try {
 			InetAddress multiGroup = InetAddress.getByName(Constants.MULTI_BROADCAST_IP);
-			InetAddress myAddress = InetAddress.getByName(Constants.SERVER_IP);
+			InetAddress serVerAddress = InetAddress.getByName(Constants.SERVER_IP);
 			sendSocket = new DatagramSocket();
-			sendPacket = new DatagramPacket(sendByteArr, Constants.UDP_PACKET_LENGTH, myAddress,
+			sendPacket = new DatagramPacket(sendByteArr, Constants.UDP_PACKET_LENGTH, serVerAddress,
 					Constants.UDP_PORT);
 			receiveMultiPacket = new DatagramPacket(buff, Constants.UDP_PACKET_LENGTH);
-			receiveMultiSocket = new MulticastSocket(Constants.MULTI_BROADCAST_PORT);
-			receiveMultiSocket.joinGroup(multiGroup);
+			receiveMultiSocket = new DatagramSocket(Constants.MULTI_BROADCAST_PORT);
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
@@ -81,7 +80,9 @@ public class UDPUS {
 		public void run() {
 			while (true) {
 				try {
+					System.out.println("R1");
 					receiveMultiSocket.receive(receiveMultiPacket);
+					System.out.println("R2");
 					b = receiveMultiPacket.getData();
 					s = decode(b);
 					s = s.trim();
