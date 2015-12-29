@@ -4,18 +4,12 @@ import com.google.gson.Gson;
 import com.twopits.balls.libs.Constants;
 import com.twopits.balls.libs.KeyOpt;
 import com.twopits.balls.libs.OneGamer;
-
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.io.OutputStream;
-import java.io.PrintWriter;
-import java.net.InetAddress;
-import java.net.Socket;
-
 import dom.DynamicObjectModule;
 import sprite.Character;
+
+import java.io.*;
+import java.net.InetAddress;
+import java.net.Socket;
 
 /**
  * Created by DBLAB on 2015/12/27.
@@ -42,12 +36,15 @@ public class TCPCM {
 			ServerIP = InetAddress.getByName(Constants.SERVER_IP);
 			socket = new Socket(ServerIP, Constants.TCP_PORT);
 			System.out.println("Create Socket");
-			initAll();
-			createThread();
+            if(socket != null) {
+                initAll();
+                createThread();
+            }
 		} catch (IOException e) {
 			e.printStackTrace();
+            System.out.println("Connection Fail!");
 		}
-	}
+    }
 
 	//���ݪ�l���O
 	public void startrecieveInitThread() {
@@ -89,7 +86,7 @@ public class TCPCM {
 		recieveThread.start();
 	}
 
-	private void firstCall() {
+	private void firstCall() throws IOException {
 		String s;
 		String gball;
 		OneGamer one;
@@ -105,6 +102,7 @@ public class TCPCM {
 			dom.updateBall(gball);
 		} catch (IOException e) {
 			e.printStackTrace();
+            stopConnection();
 		}
 
 	}
@@ -118,6 +116,9 @@ public class TCPCM {
 			firstCall();
 		} catch (IOException e) {
 			e.printStackTrace();
+            if(socket != null) socket = null;
+            if(in != null) in = null;
+            if(out != null) out = null;
 		}
 
 	}
@@ -133,6 +134,9 @@ public class TCPCM {
 			out.close();
 		}
 
+        recieveThread = null;
+        sendThread = null;
+        System.out.println("Stop Connection!");
 	}
 
 	Runnable send = new Runnable() {
@@ -144,10 +148,7 @@ public class TCPCM {
 
 	Runnable recieve = new Runnable() {
 
-		boolean isStart = false;
-		boolean isStop = false;
 		int clientCount;
-		String s;
 
 		@Override
 		public void run() {
@@ -166,7 +167,12 @@ public class TCPCM {
 					}
 				} catch (IOException e) {
 					e.printStackTrace();
-				}
+                    try {
+                        stopConnection();
+                    } catch (IOException e1) {
+                        e1.printStackTrace();
+                    }
+                }
 
 			}
 
@@ -183,13 +189,17 @@ public class TCPCM {
 						//If winner showup, then close connection and show winner.
 						System.out.println("Winner is : " + s + "\n");
 						dom.endGame(s);
-
 						stopConnection();
 						break;
 					}
 				} catch (IOException e) {
 					e.printStackTrace();
-				}
+                    try {
+                        stopConnection();
+                    } catch (IOException e1) {
+                        e1.printStackTrace();
+                    }
+                }
 
 			}
 		}
