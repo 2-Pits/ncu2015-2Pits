@@ -70,7 +70,60 @@ public class TCPCM {
 	}
 
 	private void createThread() {
-		receiveThread = new Thread(receive);
+		receiveThread = new Thread(() -> {
+			try {
+				while (clientCount < 4) {
+					clientCount = br.read();
+					System.out.println("Client Count = " + clientCount);
+				}
+			} catch (IOException e) {
+				e.printStackTrace();
+				try {
+					stopConnection();
+				} catch (IOException e1) {
+					e1.printStackTrace();
+				}
+			}
+
+			boolean gameHadStarted = false;
+			while (true) {
+				if (dom.startMove()) {
+					gameHadStarted = true;
+					System.out.println("enter");
+					String line;
+					String gameBall;
+					try {
+						line = br.readLine();
+						gameBall = br.readLine();
+						System.out.println(gameBall);
+						dom.updateBall(gameBall);
+						if (Integer.valueOf(line) != -1) {
+							// If winner show up, then close connection and show winner.
+							System.out.println("Winner is : " + line + "\n");
+							dom.endGame(line);
+							stopConnection();
+							break;
+						}
+					} catch (IOException e) {
+						e.printStackTrace();
+						try {
+							stopConnection();
+						} catch (IOException e1) {
+							e1.printStackTrace();
+						}
+					}
+				} else if (gameHadStarted) {
+					break;
+				} else {
+					try {
+						Thread.sleep(20);
+					} catch (InterruptedException e) {
+						e.printStackTrace();
+					}
+				}
+			}
+			System.out.println("Stop");
+		});
 		receiveThread.start();
 	}
 
@@ -130,64 +183,4 @@ public class TCPCM {
 		receiveThread = null;
 		System.out.println("Stop Connection!");
 	}
-
-	Runnable receive = new Runnable() {
-
-		@Override
-		public void run() {
-			try {
-				while (clientCount < 4) {
-					clientCount = br.read();
-					System.out.println("Client Count = " + clientCount);
-				}
-			} catch (IOException e) {
-				e.printStackTrace();
-				try {
-					stopConnection();
-				} catch (IOException e1) {
-					e1.printStackTrace();
-				}
-			}
-
-			boolean gameStarted = false;
-			while (true) {
-				if (!dom.startMove()) {
-					if (gameStarted) {
-						break;
-					} else {
-						try {
-							Thread.sleep(20);
-						} catch (InterruptedException e) {
-							e.printStackTrace();
-						}
-					}
-				}
-				gameStarted = true;
-				System.out.println("enter");
-				String line;
-				String gameBall;
-				try {
-					line = br.readLine();
-					gameBall = br.readLine();
-					System.out.println(gameBall);
-					dom.updateBall(gameBall);
-					if (Integer.valueOf(line) != -1) {
-						// If winner show up, then close connection and show winner.
-						System.out.println("Winner is : " + line + "\n");
-						dom.endGame(line);
-						stopConnection();
-						break;
-					}
-				} catch (IOException e) {
-					e.printStackTrace();
-					try {
-						stopConnection();
-					} catch (IOException e1) {
-						e1.printStackTrace();
-					}
-				}
-			}
-			System.out.println("Stop");
-		}
-	};
 }

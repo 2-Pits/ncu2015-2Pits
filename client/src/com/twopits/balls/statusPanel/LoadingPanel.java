@@ -7,6 +7,7 @@ import java.awt.BasicStroke;
 import java.awt.Font;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
+import java.awt.RenderingHints;
 import java.io.File;
 import java.util.ArrayList;
 
@@ -126,17 +127,22 @@ public class LoadingPanel extends JPanel {
 		int playerRadius = (int) (PLAYER_SIZE / 2 * zoom);
 
 		for (int i = 0; i < MAX_PLAYER_COUNT; i++) {
-			double posX = padding * i + (i) * rectangleSize + rectangleSize / 2;
+			double posX = padding * i + i * rectangleSize + rectangleSize / 2;
 			g2d.setStroke(new BasicStroke(5 * zoom));
+			RenderingHints rh = g2d.getRenderingHints();
+			rh.put(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+			g2d.setRenderingHints(rh);
 			g2d.drawRoundRect((int) posX, drawRectanglePositionY, rectangleSize, rectangleSize,
 					(int) (10 * zoom), (int) (10 * zoom));
 
 			if (i < mClientCount) {
-
 				// Draw characters
 				Character character = mCharacterList.get(i);
-				g2d.drawImage(character.getImage(), (int) posX, drawRectanglePositionY + padding,
-						2 * playerRadius, 2 * playerRadius, null);
+				rh.put(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_OFF);
+				g2d.setRenderingHints(rh);
+				g2d.drawImage(character.getImage(), (int) posX + padding / 2,
+						drawRectanglePositionY + padding / 2, 2 * playerRadius, 2 * playerRadius,
+						null);
 			}
 		}
 	}
@@ -146,6 +152,9 @@ public class LoadingPanel extends JPanel {
 		int drawTextPosX = getWidth() / 2 - padding * 4;
 		int drawTextPosY = getHeight() - padding;
 
+		RenderingHints rh = g2d.getRenderingHints();
+		rh.put(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+		g2d.setRenderingHints(rh);
 		g2d.setFont(mGameFont.deriveFont(15 * zoom));
 		g2d.drawString(mLoadingString, drawTextPosX, drawTextPosY);
 	}
