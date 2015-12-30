@@ -153,11 +153,13 @@ public class TCPCM {
 			while (true) {
 				if (!dom.startMove()) {
 					if (gameStarted) {
-						System.out.println("break");
 						break;
 					} else {
-						System.out.println("continue");
-						continue;
+						try {
+							Thread.sleep(20);
+						} catch (InterruptedException e) {
+							e.printStackTrace();
+						}
 					}
 				}
 				gameStarted = true;
