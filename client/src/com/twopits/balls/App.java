@@ -1,12 +1,11 @@
 package com.twopits.balls;
 
-import com.twopits.balls.loading.LoadingPanel;
-import com.twopits.balls.loading.LoadingThread;
+import com.twopits.balls.statusPanel.LoadingPanel;
+import com.twopits.balls.statusPanel.LoadingThread;
 import dom.DynamicObjectModule;
 
 import javax.swing.*;
 import java.awt.*;
-import java.util.*;
 
 /**
  * Main class of Balls
@@ -61,7 +60,7 @@ public class App {
 		LoadingPanel panel = new LoadingPanel(mTcpcm);
 		LoadingThread thread = new LoadingThread(panel);
 
-		mCardPanel.add(panel,"loading");
+		mCardPanel.add(panel,"statusPanel");
 		mCardPanel.add(mRenderEngine,"game");
 		window.add(mCardPanel);
 
@@ -75,7 +74,7 @@ public class App {
 		mUdpus.runSendThread();
 
 		thread.start();
-		mCardLayout.show(mCardPanel,"loading");
+		mCardLayout.show(mCardPanel, "statusPanel");
 
 		new Thread(new Runnable() {
 			@Override

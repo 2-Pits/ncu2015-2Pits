@@ -10,6 +10,7 @@ import sprite.Character;
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.KeyEvent;
+import java.awt.geom.Point2D;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -50,6 +51,8 @@ public class SceneRenderEngine extends JPanel {
 
 	private DynamicObjectModule dom;
 	private Character myCharacter;
+	private int mDt;
+	private Point mGameOverStringPos;
 
 	public SceneRenderEngine(App app) {
 		mApp = app;
@@ -71,7 +74,8 @@ public class SceneRenderEngine extends JPanel {
 	private void initValues() {
 		mBlockImages = initBlockResources();
 		mRectangleMap = createRectangles();
-
+		mDt = 0;
+		mGameOverStringPos = new Point() ;
 		//TODO Remove fake data
 		FakeData.initBallsMap(MAP_WIDTH, MAP_HEIGHT);
 
@@ -121,6 +125,7 @@ public class SceneRenderEngine extends JPanel {
 		updatePlayerPosition(dt);
 		updateItemRenctangle();
 		updatePlayerSprite((int) dt);
+		updateWinnerPos((int )dt);
 		repaint();
 	}
 
@@ -250,6 +255,17 @@ public class SceneRenderEngine extends JPanel {
 		}
 	}
 
+	private void updateWinnerPos(int dt){
+		if(!dom.gameOver()){
+			mDt += dt;
+			mGameOverStringPos.x = getWidth()/4;
+			while (mDt >= 10 && mGameOverStringPos.y != getHeight()/2){
+					mGameOverStringPos.y++;
+					mDt -= 10;
+			}
+		}
+	}
+
 	@Override
 	public void paint(Graphics g) {
 		super.paint(g);
@@ -260,6 +276,20 @@ public class SceneRenderEngine extends JPanel {
 
 		drawMap(g2d, zoom);
 		drawItemRectangle(g2d, zoom);
+		drawWinnerText(g2d,zoom);
+	}
+
+	private void drawWinnerText(Graphics2D g2d, float zoom){
+		if(!dom.gameOver()){
+			int posX = mGameOverStringPos.x;
+			int posY = mGameOverStringPos.y;
+			int padding = (int) (5 * zoom);
+
+			g2d.setFont(mGameFont.deriveFont(20 * zoom));
+			g2d.setColor(new Color(0xffeceff1));
+			g2d.drawString(String.format("Winner is %s ",dom.getWinner()), (float) posX - padding ,
+					posY);
+		}
 	}
 
 	private void drawItemRectangle(Graphics2D g2d, float zoom) {

@@ -1,15 +1,11 @@
-package com.twopits.balls.loading;
+package com.twopits.balls.statusPanel;
 
 
-import com.twopits.balls.KeyManager;
 import com.twopits.balls.TCPCM;
-import sprite.*;
 import sprite.Character;
 
 import javax.swing.*;
 import java.awt.*;
-import java.awt.event.KeyEvent;
-import java.awt.event.KeyListener;
 import java.io.File;
 import java.util.*;
 import java.util.Timer;

@@ -1,6 +1,4 @@
-package com.twopits.balls.loading;
-
-import com.twopits.balls.SceneRenderEngine;
+package com.twopits.balls.statusPanel;
 
 /**
  * Render thread

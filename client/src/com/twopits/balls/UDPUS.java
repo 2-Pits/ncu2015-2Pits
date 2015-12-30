@@ -80,9 +80,8 @@ public class UDPUS {
 		public void run() {
 			while (true) {
 				try {
-					System.out.println("R1");
+
 					receiveMultiSocket.receive(receiveMultiPacket);
-					System.out.println("R2");
 					b = receiveMultiPacket.getData();
 					s = decode(b);
 					s = s.trim();
