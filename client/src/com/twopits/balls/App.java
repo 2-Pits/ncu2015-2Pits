@@ -71,7 +71,7 @@ public class App {
 
 		mUdpus = new UDPUS(mDom);
 		mUdpus.iniUDPServer();
-		mUdpus.runReciveThread();
+		mUdpus.runReceiveThread();
 		mUdpus.runSendThread();
 
 		thread.start();

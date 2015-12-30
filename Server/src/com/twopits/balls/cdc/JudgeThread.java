@@ -57,7 +57,7 @@ public class JudgeThread {
     };
     public void sendBallStatus(int winner) {
         for(int i=0;i<skvector.size();i++) {
-            System.out.println(skvector.elementAt(i).getInetAddress());
+        //    System.out.println(skvector.elementAt(i).getInetAddress());
             try {
                 OutputStream os=skvector.elementAt(i).getOutputStream();
                 PrintWriter printWriter = new PrintWriter(os);
@@ -68,7 +68,7 @@ public class JudgeThread {
                 printWriter.print(s + "\n");
                 printWriter.flush();
 
-                System.out.printf("winner : %s , %s \n", String.valueOf(winner), s);
+          //      System.out.printf("winner : %s , %s \n", String.valueOf(winner), s);
             } catch (IOException e) {
                 e.printStackTrace();
             }
@@ -78,8 +78,8 @@ public class JudgeThread {
     Runnable recieveRunnable = new Runnable() {
         @Override
         public void run() {
-            System.out.println("TCPKeyopt Thread");
-            System.out.printf("socket num : %d" , skvector.size());
+          //  System.out.println("TCPKeyopt Thread");
+          //  System.out.printf("socket num : %d" , skvector.size());
             for(int i=0;i<skvector.size();i++) {
                 new Thread(new clientService(skvector.elementAt(i))).start();
             }
@@ -97,7 +97,7 @@ public class JudgeThread {
 
         @Override
         public void run() {
-            System.out.println("run clientService");
+          //  System.out.println("run clientService");
             while (true) {
                 try {
                     InputStream is=socket.getInputStream();
