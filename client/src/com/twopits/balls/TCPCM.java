@@ -163,9 +163,11 @@ public class TCPCM {
 
             if (!dom.startMove()) {
                 try {
-                    while (clientCount <= 4) {
+                    while (clientCount < 4) {
                         clientCount = br.read();
                         System.out.println("Client Count = " + clientCount);
+                    }
+                    while(true) {
                         if (!isLoading) {
                             break;
                         }
@@ -181,6 +183,8 @@ public class TCPCM {
 
             }
 
+            while (!dom.startMove()) {
+            }
             while (dom.startMove()) {
                 System.out.println("enter");
                 String s;
@@ -207,6 +211,7 @@ public class TCPCM {
                 }
 
             }
+            System.out.println("Stop");
         }
     };
 

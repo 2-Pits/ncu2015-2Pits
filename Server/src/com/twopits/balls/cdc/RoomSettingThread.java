@@ -100,7 +100,7 @@ public class RoomSettingThread  extends Thread  { // Waiting for four Ch
             }
             if (cdc.getPlayerMapCount() == 4) break;
         }
-      //  System.out.println(cdc.getPlayerMapCount());
+        //System.out.println(cdc.getPlayerMapCount());
         udpbc.setClientIP(ipvector);
         udpbc.startUDPBroadCast();
         udpbc.runSendThread();

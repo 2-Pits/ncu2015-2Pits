@@ -68,7 +68,7 @@ public class JudgeThread {
                 printWriter.print(s + "\n");
                 printWriter.flush();
 
-          //      System.out.printf("winner : %s , %s \n", String.valueOf(winner), s);
+                System.out.printf("winner : %s , %s \n", String.valueOf(winner), s);
             } catch (IOException e) {
                 e.printStackTrace();
             }
