@@ -8,7 +8,6 @@ import java.io.IOException;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.net.InetAddress;
-import java.net.MulticastSocket;
 import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 
@@ -54,7 +53,6 @@ public class UDPUS {
 		byte buff[] = new byte[Constants.UDP_PACKET_LENGTH];
 		sendByteArr = new byte[Constants.UDP_PACKET_LENGTH];
 		try {
-			InetAddress multiGroup = InetAddress.getByName(Constants.MULTI_BROADCAST_IP);
 			InetAddress serVerAddress = InetAddress.getByName(Constants.SERVER_IP);
 			sendSocket = new DatagramSocket();
 			sendPacket = new DatagramPacket(sendByteArr, Constants.UDP_PACKET_LENGTH, serVerAddress,
@@ -80,7 +78,6 @@ public class UDPUS {
 		public void run() {
 			while (true) {
 				try {
-
 					receiveMultiSocket.receive(receiveMultiPacket);
 					b = receiveMultiPacket.getData();
 					s = decode(b);

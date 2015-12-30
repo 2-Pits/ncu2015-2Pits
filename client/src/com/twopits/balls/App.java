@@ -2,10 +2,13 @@ package com.twopits.balls;
 
 import com.twopits.balls.statusPanel.LoadingPanel;
 import com.twopits.balls.statusPanel.LoadingThread;
-import dom.DynamicObjectModule;
 
-import javax.swing.*;
-import java.awt.*;
+import java.awt.CardLayout;
+
+import javax.swing.JFrame;
+import javax.swing.JPanel;
+
+import dom.DynamicObjectModule;
 
 /**
  * Main class of Balls
@@ -23,9 +26,14 @@ public class App {
 	private UDPUS mUdpus;
 	private DynamicObjectModule mDom;
 	private TCPCM mTcpcm;
-	private JPanel mCardPanel ;
+	private JPanel mCardPanel;
+
+	private LoadingThread mLoadingThread;
 	private CardLayout mCardLayout;
 
+	public LoadingThread getLoadingThread() {
+		return mLoadingThread;
+	}
 
 	public RenderThread getRenderThread() {
 		return mRenderThread;
@@ -44,7 +52,6 @@ public class App {
 	}
 
 	public App() {
-
 		mDom = new DynamicObjectModule();
 
 		mRenderEngine = new SceneRenderEngine(this);
@@ -52,16 +59,16 @@ public class App {
 
 		JFrame window = new GameWindow();
 
-		mTcpcm = new TCPCM(this,mDom);
+		mTcpcm = new TCPCM(this, mDom);
 		mTcpcm.buildConnection();
 
 		mCardLayout = new CardLayout();
 		mCardPanel = new JPanel(mCardLayout);
-		LoadingPanel panel = new LoadingPanel(mTcpcm);
-		LoadingThread thread = new LoadingThread(panel);
+		LoadingPanel panel = new LoadingPanel(this, mTcpcm);
+		mLoadingThread = new LoadingThread(panel);
 
-		mCardPanel.add(panel,"statusPanel");
-		mCardPanel.add(mRenderEngine,"game");
+		mCardPanel.add(panel, "statusPanel");
+		mCardPanel.add(mRenderEngine, "game");
 		window.add(mCardPanel);
 
 		mKeyManager = new KeyManager(mTcpcm);
@@ -73,26 +80,20 @@ public class App {
 		mUdpus.runReceiveThread();
 		mUdpus.runSendThread();
 
-		thread.start();
+		mLoadingThread.start();
 		mCardLayout.show(mCardPanel, "statusPanel");
 
-		new Thread(new Runnable() {
-			@Override
-			public void run() {
-				while(panel.isLoading()){
-					try
-					{
-						Thread.sleep(100);
-					}
-					catch(Exception e) {
-						e.printStackTrace();
-					}
+		new Thread(() -> {
+			while (panel.isLoading()) {
+				try {
+					Thread.sleep(100);
+				} catch (Exception e) {
+					e.printStackTrace();
 				}
-				mCardLayout.show(mCardPanel,"game");
-				mRenderThread.start();
-				mDom.startGame();
 			}
+			mCardLayout.show(mCardPanel, "game");
+			mRenderThread.start();
+			mDom.startGame();
 		}).start();
-
 	}
 }

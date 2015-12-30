@@ -8,7 +8,6 @@ public class Constants {
 
 	public static final String APP_NAME = "Balls";
 
-	public static final String MULTI_BROADCAST_IP = "239.255.255.255";
 	public static final String SERVER_IP = "140.115.155.92";
 	public static final int TCP_PORT = 5278;
 	public static final int UDP_PORT = 45368;
