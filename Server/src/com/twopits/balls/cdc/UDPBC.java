@@ -37,9 +37,11 @@ public class UDPBC {
     private double myPosition_X;
     private double myPosition_Y;
     private CentralizedDataCenter cdc;
+    private JudgeThread judgeThread;
 
-    public UDPBC(CentralizedDataCenter cdc) {
+    public UDPBC(CentralizedDataCenter cdc,JudgeThread judgeThread) {
         this.cdc = cdc;
+        this.judgeThread=judgeThread;
     }
 
     public void startUDPBroadCast() {
@@ -119,7 +121,7 @@ public class UDPBC {
         public void run() {
 
 
-            while (true) {
+            while (!judgeThread.getGameEnd()) {
                 try {
                     reciveSocket.receive(recivePacket);
                     b = recivePacket.getData();
@@ -138,6 +140,7 @@ public class UDPBC {
                     e.printStackTrace();
                 }
             }
+            reciveSocket.close();
         }
     };
 
@@ -146,7 +149,7 @@ public class UDPBC {
         public void run() {
 
 
-            while (true) {
+            while (!judgeThread.getGameEnd()) {
                 Arrays.fill(sendByteArr,(byte)0);
                 allPlayerMap =cdc.getPlayerMap();
                 String s="";
@@ -171,6 +174,7 @@ public class UDPBC {
                     e.printStackTrace();
                 }
             }
+            sendMultiSocket.close();
         }
     };
 

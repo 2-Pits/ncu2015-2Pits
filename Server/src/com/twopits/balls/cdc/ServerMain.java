@@ -11,13 +11,27 @@ public class ServerMain {
     RoomSettingThread roomSettingThread;
     JudgeThread judgeThread;
     public static void main(String[] args) {
-        new ServerMain();
+        while(true) {
+            ServerMain serverMain= new ServerMain();
+            System.out.println("Server Online");
+            while(!serverMain.getGameEnd()){
+                continue;
+            }
+            try {
+                serverMain.finalize();
+            } catch (Throwable throwable) {
+                throwable.printStackTrace();
+            }
+        }
+    }
+    public boolean getGameEnd(){
+        return judgeThread.getGameEnd();
     }
     public ServerMain() {
         try {
             cdc = new CentralizedDataCenter();
-            udpbc = new UDPBC(cdc);
             judgeThread = new JudgeThread(cdc);
+            udpbc = new UDPBC(cdc,judgeThread);
             roomSettingThread = new RoomSettingThread(cdc, udpbc,judgeThread);
             roomSettingThread.startRoomSettingThread();
         }catch(Exception e){

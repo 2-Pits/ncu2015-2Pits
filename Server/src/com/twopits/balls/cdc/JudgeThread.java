@@ -19,9 +19,14 @@ public class JudgeThread {
     ServerSocket ss = null;     // 建立 TCP 伺服器。
     private Thread judgeTh, reciveTh;
     int winner;
+    boolean gameEnd;
     public JudgeThread(CentralizedDataCenter cdc){
         this.cdc=cdc;
         winner=-1;
+        gameEnd=false;
+    }
+    public boolean getGameEnd(){
+        return gameEnd;
     }
     public void setVector(Vector<Socket> skvector){
         this.skvector = skvector;
@@ -52,6 +57,15 @@ public class JudgeThread {
                         tempkeyopt.getkeyCode());
                 winner = cdc.getBallMap().winnerScan();
                 sendBallStatus(winner);
+            }
+            gameEnd=true;
+            try {
+                ss.close();
+                for (int i=0;i<skvector.size();i++){
+                    skvector.elementAt(i).close();
+                }
+            } catch (IOException e) {
+                e.printStackTrace();
             }
         }
     };
@@ -98,7 +112,7 @@ public class JudgeThread {
         @Override
         public void run() {
           //  System.out.println("run clientService");
-            while (true) {
+            while (!gameEnd) {
                 try {
                     InputStream is=socket.getInputStream();
                     BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(is));
